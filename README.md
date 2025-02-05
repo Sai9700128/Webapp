@@ -62,6 +62,10 @@ mvn spring-boot:run
 
 - mvn spring-boot:run :- This commands starts our Spring Boot Application. It allows you to run your Spring Boot application directly from the terminal without needing to package it into a JAR or WAR file first.
 
+
+To test the API Success and Failure:
+```mvn test```
+
  
 # Check API
 To check the API in the postman for Application status and database connection:
