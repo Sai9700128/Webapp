@@ -69,7 +69,7 @@ variable "AMI_DESCRIPTION" {
 
 variable "gcp-region" {
   type    = string
-  default = "us-central1-c"
+  default = "us-central1-a"
 }
 
 variable "gcp_project_id" {
