@@ -43,7 +43,7 @@ variable "ssh_username" {
 
 # Default subnet id
 variable "subnet_id" {
-  type    = string
+  type = string
   # default = "subnet-060513e6e25a58f21"
 }
 
@@ -71,11 +71,11 @@ variable "AMI_DESCRIPTION" {
 
 variable "GCP_ZONE" {
   type    = string
-  default = "us-east1-b"
+  default = "us-west2-c"
 }
 
 variable "gcp_project_id" {
-  type    = string
+  type = string
   # default = "dev-452121"
 }
 
@@ -181,4 +181,6 @@ build {
   post-processor "manifest" {
     output = "manifest.json"
   }
+
+
 }
