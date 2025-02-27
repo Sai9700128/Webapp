@@ -1,62 +1,93 @@
-name: Packer CI - Format & Validate
+name: Packer Image Build on PR Merge
 
 on:
   pull_request:
+    types:
+      - closed
     branches:
-      - main  # Trigger the workflow only for PRs targeting the 'main' branch
+      - main
 
 jobs:
-  packer-checks:
-    runs-on: ubuntu-latest  # Use an Ubuntu environment for the CI workflow
+  build-packer-image:
+    if: github.event.pull_request.merged == true
+    name: Package Application and Build Packer AMI
+    runs-on: ubuntu-latest
+    environment: development
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      GCP_ACCESS_KEY: ${{ secrets.GCP_ACCESS_KEY }}
+
+      # Application Variables
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+      # Packer Variables (Automatically Picked Up)
+      PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
+      PKR_VAR_VOLUME_SIZE: ${{ secrets.VOLUME_SIZE }}
+      PKR_VAR_VOLUME_TYPE: ${{ secrets.VOLUME_TYPE }}
+      PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+      PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
+      PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
+      PKR_VAR_REGION: ${{ secrets.REGION }}
+      PKR_VAR_AMI_USER: ${{ secrets.AMI_USER }}
+      PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
+      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
+
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout Repository
-        uses: actions/checkout@v4  # Checks out the latest code from the repository
+        uses: actions/checkout@v4
 
-      # Step 2: Install Java and Maven
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@v1
+
       - name: Set Up JDK 21
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '21'
-
-      # Step 3: Build the JAR file (HealthCheck-0.0.1-SNAPSHOT.jar)
+          java-version: '17'
+      
       - name: Build the HealthCheck JAR file
         run: |
           cd ../HealthCheck  # Navigate to the directory containing your Spring Boot app
-          mvn clean install  # Build the JAR file (ensure your pom.xml is correctly configured)
+          mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
         working-directory: HealthCheck  # Navigate to the 'HealthCheck' directory before running the command
 
-      # Step 4: Install Packer
+
       - name: Install Packer
-        run: |
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -  # Add Packer GPG key
-          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"  # Add Packer repository
-          sudo apt update && sudo apt install -y packer  # Install Packer
+        uses: cd ../packer && hashicorp/setup-packer@main
 
-      # Step 5: Initialize the Packer template
-      - name: Initialize Packer Template
-        run: |
-          packer init packer.pkr.hcl
+      # - name: Install Packer Google Cloud Plugin
+      #   run: cd ../packer && packer plugins install github.com/hashicorp/googlecompute
+
+      - name: Initialize Packer
         working-directory: packer
-      # Step 6: Run packer fmt to check formatting
-      - name: Run Packer Format Check
-        run: |
-          packer fmt -check .  # Checks if the Packer template is correctly formatted. If modified, it fails
-        working-directory: packer  # Navigate to the 'packer' directory before running the command
+        run: cd ../packer && packer init .
 
-      # Step 7: Run packer validate to validate the Packer template
+      - name: Run Packer fmt Check
+        working-directory: packer
+        run: cd ../packer && packer fmt -check .
+
       - name: Run Packer Validate
-        run: |
-          packer validate \
-            -var "DB_URL=${{ secrets.DB_URL }}" \
-            -var "DB_USRNAME=${{ secrets.DB_USRNAME }}" \
-            -var "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
-            -var "DB_NAME=${{ secrets.DB_NAME }}" \
-            -var "subnet_id=${{ secrets.subnet_id }}" \
-            -var "instance_type=${{ secrets.instance_type }}" \
-            -var "PRT_NBR=${{ secrets.PRT_NBR }}" \
-            -var "gcp_project_id=${{ secrets.gcp_project_id }}" \
-            packer.pkr.hcl    # Validates the Packer template. If it fails, the workflow fails
-        working-directory: packer  # Navigate to the 'packer' directory before running the command
+        working-directory: packer
+        run: cd ../packer && packer validate .
+
+      - name: Run Packer Build
+        working-directory: packer
+        run: cd ../packer && packer build .
