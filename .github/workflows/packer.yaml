@@ -71,24 +71,15 @@ jobs:
       #   run: cd ../packer && packer plugins install github.com/hashicorp/googlecompute
 
       - name: Initialize Packer
-        working-directory: ./packer
+        working-directory: packer
         run: packer init .
 
       - name: Run Packer fmt Check
-        working-directory: ./packer
+        working-directory: packer
         run: |
           packer fmt -check -diff .
         continue-on-error: false
 
       - name: Run Packer Validate
-        working-directory: ./packer
-        run: packer validate \
-                -var "DB_URL=${{ secrets.PKR_VAR_DB_URL }}" \
-                -var "PRT_NBR=${{ secrets.PKR_VAR_PRT_NBR }}" \
-                -var "DB_USRNAME=${{ secrets.PKR_VAR_DB_USRNAME }}" \
-                -var "DB_PASSWORD=${{ secrets.PKR_VAR_DB_PASSWORD }}" \
-                -var "DB_NAME=${{ secrets.PKR_VAR_DB_NAME }}" \
-                -var "SSH_USERNAME=${{ secrets.PKR_VAR_SSH_USERNAME }}" \
-                -var "SUBNET_ID=${{ secrets.PKR_VAR_SUBNET_ID }}" \
-                -var "INSTANCE_TYPE=${{ secrets.PKR_VAR_INSTANCE_TYPE }}" \
-                packer.pkr.hcl
+        working-directory: packer
+        run: packer validate .
