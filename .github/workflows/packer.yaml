@@ -29,6 +29,15 @@ jobs:
         working-directory: packer  # Navigate to the 'packer' directory before running the command
 
       # Step 4: Run packer validate to validate the Packer template
-      - name: Run Packer Validate .
+      - name: Run Packer Validate
         run: |
-          packer validate .  # Validates the Packer template. If it fails, the workflow fails
+          packer validate \
+            -var "DB_URL=${{ secrets.DB_URL }}" \
+            -var "DB_USRNAME=${{ secrets.DB_USRNAME }}" \
+            -var "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+            -var "DB_NAME=${{ secrets.DB_NAME }}" \
+            -var "subnet_id=${{ secrets.subnet_id }}" \
+            -var "instance_type=${{ secrets.instance_type }}" \
+            -var "PRT_NBR=${{ secrets.PRT_NBR }}" \
+            -var "gcp_project_id=${{ secrets.gcp_project_id }}" \
+            packer.pkr.hcl    # Validates the Packer template. If it fails, the workflow fails
