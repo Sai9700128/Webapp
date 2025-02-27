@@ -41,3 +41,4 @@ jobs:
             -var "PRT_NBR=${{ secrets.PRT_NBR }}" \
             -var "gcp_project_id=${{ secrets.gcp_project_id }}" \
             packer.pkr.hcl    # Validates the Packer template. If it fails, the workflow fails
+        working-directory: packer  # Navigate to the 'packer' directory before running the command
