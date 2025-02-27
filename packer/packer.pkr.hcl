@@ -161,7 +161,7 @@ build {
     destination = "/tmp/"
   }
 
-  provisioner "file" {
+  provisioner"file" {
     source      = "csye6225.service"
     destination = "/tmp/"
   }
