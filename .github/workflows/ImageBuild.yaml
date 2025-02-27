@@ -113,8 +113,8 @@ jobs:
 
       - name: Run Packer Build
         working-directory: packer
-        run: packer build AMI_ID=$(packer.pkr.hcl | grep 'AMI ID' | awk '{print $3}')
-          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+        run: packer build AMI_ID=$(packer.pkr.hcl | tee /dev/tty | grep 'AMI ID' | awk '{print $3}')
+            echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
       
       - name: Delete the AMI in AWS
         run: aws ec2 deregister-image --image-id ${{ env.AMI_ID }} --region ${{ secrets.REGION }}
