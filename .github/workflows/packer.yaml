@@ -15,10 +15,11 @@ jobs:
         uses: actions/checkout@v4  # Checks out the latest code from the repository
 
       # Step 2: Install Java and Maven
-      - name: Install Java and Maven
-        run: |
-          sudo apt update
-          sudo apt install -y openjdk-21-jdk maven
+      - name: Set Up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
       # Step 3: Build the JAR file (HealthCheck-0.0.1-SNAPSHOT.jar)
       - name: Build the HealthCheck JAR file
