@@ -79,4 +79,4 @@ jobs:
 
       - name: Run Packer Validate
         working-directory: packer
-        run: packer validate packer.pkr.hcl
+        run: packer validate -var "subnet_id=subnet-060513e6e25a58f21" packer.pkr.hcl
