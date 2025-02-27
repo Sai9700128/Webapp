@@ -11,22 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
 
-    env:
+    # env:
       # Application Variables
-      DB_URL: ${{ secrets.DB_URL }}
-      DB_USRNAME: ${{ secrets.DB_USRNAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      # DB_URL: ${{ secrets.DB_URL }}
+      # DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      # DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
-      # Packer Variables (Automatically Picked Up)
-      PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
-      PKR_VAR_PRT_NBR: ${{ secrets.PRT_NBR }}
-      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
-      PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
-      PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-      PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
-      PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
-      PKR_VAR_REGION: ${{ secrets.REGION }}
+      # # Packer Variables (Automatically Picked Up)
+      # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      # PKR_VAR_PRT_NBR: ${{ secrets.PRT_NBR }}
+      # PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      # PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      # PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
+      # PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+      # PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
+      # PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
+      # PKR_VAR_REGION: ${{ secrets.REGION }}
 
     services:
       mysql:
@@ -79,8 +79,13 @@ jobs:
 
       - name: Run Packer Validate
         working-directory: packer
-        run: packer validate -debug -var "subnet_id=${{ secrets.SUBNET_ID}}" \
-            -var "instance_type=${{ secrets.INSTANCE_TYPE }}" \
-            -var "PRT_NBR=${{ secrets.PRT_NBR}}" \
-            -var "gcp_project_id={{secrets.GCP_PROJECT_ID}}" \
-            packer.pkr.hcl
+        run: packer validate \
+          -var "DB_URL=jdbc:mysql://localhost:3306/health_checker_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true" \
+          -var "DB_USRNAME=root" \
+          -var "DB_PASSWORD=S@i112002" \
+          -var "DB_NAME=health_checker_db" \
+          -var "subnet_id=subnet-060513e6e25a58f21" \
+          -var "instance_type=t2.micro" \
+          -var "PRT_NBR=8080" \
+          -var "gcp_project_id=dev-452121" \
+          packer.pkr.hcl
