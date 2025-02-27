@@ -43,12 +43,12 @@ variable "ssh_username" {
 
 # Default subnet id
 variable "subnet_id" {
-  type = string
+  type    = string
   default = "subnet-060513e6e25a58f21"
 }
 
 variable "instance_type" {
-  type = string
+  type    = string
   default = "t2.micro"
 }
 
@@ -75,7 +75,7 @@ variable "GCP_ZONE" {
 }
 
 variable "gcp_project_id" {
-  type = string
+  type    = string
   default = "dev-452121"
 }
 
