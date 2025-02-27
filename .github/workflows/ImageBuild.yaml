@@ -23,6 +23,7 @@ jobs:
 
       # Packer Variables (Automatically Picked Up)
       PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      PKR_VAR_PRT_NBR: ${{ secrets.PRT_NBR }}
       PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
