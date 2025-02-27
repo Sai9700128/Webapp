@@ -1,24 +1,17 @@
-name: Packer Image Build on PR Merge
+name: Packer Continuous Integration
 
 on:
   pull_request:
-    types:
-      - closed
     branches:
       - main
 
 jobs:
-  build-packer-image:
-    if: github.event.pull_request.merged == true
-    name: Package Application and Build Packer AMI
+  test-development:
+    name: Run Application Tests and Validate Packer
     runs-on: ubuntu-latest
     environment: development
 
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      GCP_ACCESS_KEY: ${{ secrets.GCP_ACCESS_KEY }}
-
       # Application Variables
       DB_URL: ${{ secrets.DB_URL }}
       DB_USRNAME: ${{ secrets.DB_USRNAME }}
@@ -26,18 +19,14 @@ jobs:
 
       # Packer Variables (Automatically Picked Up)
       PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      PKR_VAR_PRT_NBR: ${{ secrets.PRT_NBR }}
       PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
-      PKR_VAR_VOLUME_SIZE: ${{ secrets.VOLUME_SIZE }}
-      PKR_VAR_VOLUME_TYPE: ${{ secrets.VOLUME_TYPE }}
       PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
       PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
       PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
       PKR_VAR_REGION: ${{ secrets.REGION }}
-      PKR_VAR_AMI_USER: ${{ secrets.AMI_USER }}
-      PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
-      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
 
     services:
       mysql:
@@ -54,20 +43,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install AWS CLI
-        uses: unfor19/install-aws-cli-action@v1
-
       - name: Set Up JDK 21
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
       
-      - name: Build the HealthCheck JAR file
+      - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          PORT: ${{ secrets.PORT }}
         run: |
-          cd ../HealthCheck  # Navigate to the directory containing your Spring Boot app
+          cd HealthCheck  # Navigate to the directory containing your Spring Boot application
           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
-        working-directory: HealthCheck  # Navigate to the 'HealthCheck' directory before running the command
+        
 
 
       - name: Install Packer
@@ -82,12 +73,10 @@ jobs:
 
       - name: Run Packer fmt Check
         working-directory: packer
-        run: packer fmt -check .
+        run: |
+          packer fmt -check -diff .
+        continue-on-error: false
 
       - name: Run Packer Validate
         working-directory: packer
-        run: packer validate .
-
-      - name: Run Packer Build
-        working-directory: packer
-        run: packer build .
+        run: packer validate packer.pkr.hcl
