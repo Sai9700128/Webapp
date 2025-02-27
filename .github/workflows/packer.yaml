@@ -9,28 +9,6 @@ jobs:
   build-packer-image:
     name: Package format & Validate
     runs-on: ubuntu-latest
-    environment: development
-
-    env:
-      # Application Variables
-      DB_URL: ${{ secrets.DB_URL }}
-      DB_USRNAME: ${{ secrets.DB_USRNAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-
-      # Packer Variables (Automatically Picked Up)
-      PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
-      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
-      PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
-      PKR_VAR_VOLUME_SIZE: ${{ secrets.VOLUME_SIZE }}
-      PKR_VAR_VOLUME_TYPE: ${{ secrets.VOLUME_TYPE }}
-      PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-      PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
-      PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
-      PKR_VAR_REGION: ${{ secrets.REGION }}
-      PKR_VAR_AMI_USER: ${{ secrets.AMI_USER }}
-      PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
-      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
 
 
     steps:
@@ -45,9 +23,9 @@ jobs:
       
       - name: Build the HealthCheck JAR file
         run: |
-          cd ../HealthCheck  # Navigate to the directory containing your Spring Boot app
+          cd ./HealthCheck  # Navigate to the directory containing your Spring Boot app
           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
-        working-directory: ./HealthCheck  # Navigate to the 'HealthCheck' directory before running the command
+        
 
 
       - name: Install Packer
