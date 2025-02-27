@@ -43,7 +43,7 @@ variable "ssh_username" {
 
 # Default subnet id
 variable "subnet_id" {
-  type    = string
+  type = string
   # default = "subnet-060513e6e25a58f21"
 }
 
