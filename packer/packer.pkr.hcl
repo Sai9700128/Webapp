@@ -43,7 +43,7 @@ variable "ssh_username" {
 
 # Default subnet id
 variable "subnet_id" {
-  type = string
+  type    = string
   # default = "subnet-060513e6e25a58f21"
 }
 
@@ -71,11 +71,11 @@ variable "AMI_DESCRIPTION" {
 
 variable "GCP_ZONE" {
   type    = string
-  default = "us-central1-a"
+  default = "us-east1-b"
 }
 
 variable "gcp_project_id" {
-  type = string
+  type    = string
   # default = "dev-452121"
 }
 
@@ -133,7 +133,7 @@ source "amazon-ebs" "my-ami" {
 # Google Cloud Image Source Configuration
 source "googlecompute" "my-image" {
   project_id   = var.gcp_project_id
-  source_image = "ubuntu-2204-lts"
+  source_image = "ubuntu-2204-jammy-v20250219"
   zone         = var.GCP_ZONE
   machine_type = var.gcp_machine_type
   image_name   = "${var.gcp_IMAGE_FAM_NAME}-${formatdate("YYYY-MM-DD-HH-MM-ss", timestamp())}"
