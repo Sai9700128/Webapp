@@ -79,8 +79,8 @@ jobs:
 
       - name: Run Packer Validate
         working-directory: packer
-        run: packer validate -var "subnet_id=subnet-060513e6e25a58f21" \
-            -var "instance_type=t2.micro" \
-            -var "PRT_NBR=8080" \
-            -var "gcp_project_id=dev-452121" \
+        run: packer validate -var "subnet_id=${{ secrets.SUBNET_ID}}" \
+            -var "instance_type=${{ secretd.INSTANCE_TYPE }}" \
+            -var "PRT_NBR=${{ secrets.PRT_NBR}}" \
+            -var "gcp_project_id={{secrets.GCP_PROJECT_ID}}" \
             packer.pkr.hcl
