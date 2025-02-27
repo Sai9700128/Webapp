@@ -35,7 +35,8 @@ variable "PRT_NBR" {
 }
 
 variable "ssh_username" {
-  type = string
+  type    = string
+  default = "ubuntu"
 }
 
 # aws configurations
@@ -50,7 +51,8 @@ variable "instance_type" {
 }
 
 variable "region" {
-  type = string
+  type    = string
+  default = "us-east-1"
 }
 
 variable "AMI_NAME" {
@@ -86,7 +88,8 @@ variable "gcp_IMAGE_FAM_NAME" {
 }
 
 variable "gcp_machine_type" {
-  type = string
+  type    = string
+  default = "n1-standard-1"
 }
 
 
