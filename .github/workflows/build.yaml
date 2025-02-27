@@ -30,6 +30,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+      
+      - name : Build the HealthCheck JAR file
+        run: mvn clean install
+        working-directory: HealthCheck
 
       - name: Set Up Dependencies and Run Tests
         env:
@@ -38,4 +42,4 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           PORT: ${{ secrets.PORT }}
         run: mvn clean install
-        working-directory: HealthCheck  
+        working-directory: HealthCheck
