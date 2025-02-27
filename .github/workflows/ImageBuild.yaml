@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-packer-image:
-    if: github.event.pull_request.merged == true
     name: Package Application and Build Packer AMI
     runs-on: ubuntu-latest
     environment: development
