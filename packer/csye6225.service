@@ -1,0 +1,17 @@
+[Unit]
+Description=Spring Boot Application
+After=network.target
+
+[Service]
+User=csye6225
+Group=csye6225
+Type=simple
+ExecStart=java -jar /opt/csye6225/health-checker-0.0.1-SNAPSHOT.jar
+Restart=always
+RestartSec=3
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=csye6225
+
+[Install]
+WantedBy=multi-user.target
