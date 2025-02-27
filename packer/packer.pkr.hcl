@@ -75,8 +75,8 @@ variable "GCP_ZONE" {
 }
 
 variable "gcp_project_id" {
-  type    = string
-  default = "dev-452121"
+  type = string
+  # default = "dev-452121"
 }
 
 
