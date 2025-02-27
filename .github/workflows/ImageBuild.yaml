@@ -1,0 +1,115 @@
+name: Packer Image Build on PR Merge
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  build-packer-image:
+    if: github.event.pull_request.merged == true
+    name: Package Application and Build Packer AMI
+    runs-on: ubuntu-latest
+    environment: development
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      GCP_ACCESS_KEY: ${{ secrets.GCP_ACCESS_KEY }}
+
+      # Application Variables
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+      # Packer Variables (Automatically Picked Up)
+      PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
+      PKR_VAR_VOLUME_SIZE: ${{ secrets.VOLUME_SIZE }}
+      PKR_VAR_VOLUME_TYPE: ${{ secrets.VOLUME_TYPE }}
+      PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+      PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
+      PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
+      PKR_VAR_REGION: ${{ secrets.REGION }}
+      PKR_VAR_AMI_USER: ${{ secrets.AMI_USER }}
+      PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
+      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
+
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@v1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.REGION }}
+
+      # - name: Configure GCP Credentials
+      #   uses: google-github-actions/auth@v1
+      #   with:
+      #     credentials_json: ${{ secrets.GCP_ACCESS_KEY }}
+
+      # - name: Setting GCP SDK
+      #   uses: google-github-actions/setup-gcloud@v2
+
+      # - name: Setting GCP Access Key
+      #   run: |
+      #     echo '${{ secrets.GCP_ACCESS_KEY }}' >> .gcp-key.json
+
+      - name: Set Up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          PORT: ${{ secrets.PORT }}
+        run: |
+          cd HealthCheck  # Navigate to the directory containing your Spring Boot application
+          mvn clean -B package
+
+      - name: Install Packer
+        uses: hashicorp/setup-packer@main
+
+      # - name: Install Packer Google Cloud Plugin
+      #   run: packer plugins install github.com/hashicorp/googlecompute
+
+      - name: Initialize Packer
+        working-directory: packer
+        run: packer init .
+
+      - name: Run Packer fmt Check
+        working-directory: packer
+        run: packer fmt -check .
+
+      - name: Run Packer Validate
+        working-directory: packer
+        run: packer validate .
+
+      - name: Run Packer Build
+        working-directory: packer
+        run: packer build .
