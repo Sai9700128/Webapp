@@ -113,8 +113,8 @@ jobs:
 
       - name: Run Packer Build
         working-directory: packer
-        run: packer build AMI_ID=$(packer.pkr.hcl | tee /dev/tty | grep 'AMI ID' | awk '{print $3}')
-            echo "AMI_ID=$AMI_ID" >> $AWS_GITHUB_ENV
+        run: AMI_ID=$(packer build packer.pkr.hcl | tee build.log | grep 'AMI ID' | awk '{print $3}')
+            echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
       
       - name: Share AMI with DEMO Account
         run: |
