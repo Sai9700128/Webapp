@@ -23,9 +23,9 @@ jobs:
       # Step 3: Build the JAR file (HealthCheck-0.0.1-SNAPSHOT.jar)
       - name: Build the HealthCheck JAR file
         run: |
-          cd HealthCheck  # Navigate to the directory containing your Spring Boot app
+          cd ../HealthCheck  # Navigate to the directory containing your Spring Boot app
           mvn clean install  # Build the JAR file (ensure your pom.xml is correctly configured)
-        working-directory: ./HealthCheck  # Navigate to the 'HealthCheck' directory before running the command
+        working-directory: HealthCheck  # Navigate to the 'HealthCheck' directory before running the command
 
       # Step 4: Install Packer
       - name: Install Packer
