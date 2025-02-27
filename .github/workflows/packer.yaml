@@ -47,7 +47,7 @@ jobs:
         run: |
           cd ../HealthCheck  # Navigate to the directory containing your Spring Boot app
           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
-        working-directory: HealthCheck  # Navigate to the 'HealthCheck' directory before running the command
+        working-directory: ../HealthCheck  # Navigate to the 'HealthCheck' directory before running the command
 
 
       - name: Install Packer
@@ -57,17 +57,17 @@ jobs:
       #   run: cd ../packer && packer plugins install github.com/hashicorp/googlecompute
 
       - name: Initialize Packer
-        working-directory: packer
+        working-directory: ../packer
         run: packer init .
 
       - name: Run Packer fmt Check
-        working-directory: packer
+        working-directory: ../packer
         run: |
           packer fmt -check -diff .
         continue-on-error: false
 
       - name: Run Packer Validate
-        working-directory: packer
+        working-directory: ../packer
         run: packer validate -var "DB_URL=${{ secrets.DB_URL }}" \
                           -var "DB_USRNAME=${{ secrets.DB_USRNAME }}" \
                           -var "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
