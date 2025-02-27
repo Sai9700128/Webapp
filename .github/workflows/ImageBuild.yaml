@@ -2,8 +2,6 @@ name: Packer Image Build on PR Merge
 
 on:
   pull_request:
-    types:
-      - closed
     branches:
       - main
 
