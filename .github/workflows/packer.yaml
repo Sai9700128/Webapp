@@ -62,7 +62,7 @@ jobs:
         run: |
           cd HealthCheck  # Navigate to the directory containing your Spring Boot application
           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
-        working-directory: HealthCheck
+        
 
 
       - name: Install Packer
