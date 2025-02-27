@@ -19,11 +19,10 @@ jobs:
 
       # Packer Variables (Automatically Picked Up)
       PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      PKR_VAR_PRT_NBR: ${{ secrets.PRT_NBR }}
       PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
-      PKR_VAR_VOLUME_SIZE: ${{ secrets.VOLUME_SIZE }}
-      PKR_VAR_VOLUME_TYPE: ${{ secrets.VOLUME_TYPE }}
       PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
       PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
       PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
@@ -83,4 +82,17 @@ jobs:
 
       - name: Run Packer Validate
         working-directory: ./packer
-        run: packer validate .
+        run: packer validate \
+                -var "DB_URL=${{ secrets.PKR_VAR_DB_URL }}" \
+                -var "PRT_NBR=${{ secrets.PKR_VAR_PRT_NBR }}" \
+                -var "DB_USRNAME=${{ secrets.PKR_VAR_DB_USRNAME }}" \
+                -var "DB_PASSWORD=${{ secrets.PKR_VAR_DB_PASSWORD }}" \
+                -var "DB_NAME=${{ secrets.PKR_VAR_DB_NAME }}" \
+                -var "SSH_USERNAME=${{ secrets.PKR_VAR_SSH_USERNAME }}" \
+                -var "SUBNET_ID=${{ secrets.PKR_VAR_SUBNET_ID }}" \
+                -var "INSTANCE_TYPE=${{ secrets.PKR_VAR_INSTANCE_TYPE }}" \
+                -var "REGION=${{ secrets.PKR_VAR_REGION }}" \
+                -var "AMI_USER=${{ secrets.PKR_VAR_AMI_USER }}" \
+                -var "GCP_MACHINE_TYPE=${{ secrets.PKR_VAR_GCP_MACHINE_TYPE }}" \
+                -var "GCP_DEMO_PROJECT_ID=${{ secrets.PKR_VAR_GCP_DEMO_PROJECT_ID }}" \
+                packer.pkr.hcl
