@@ -11,7 +11,7 @@
     <groupId>com.Healthcheck</groupId>
     <artifactId>HealthCheck</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>HealthCheck</name>
     <description>Health check API implementation</description>
     <url/>
