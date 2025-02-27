@@ -23,7 +23,7 @@ jobs:
       
       - name: Build the HealthCheck JAR file
         run: |
-          cd ./HealthCheck  # Navigate to the directory containing your Spring Boot app
+          # cd ./HealthCheck  # Navigate to the directory containing your Spring Boot app
           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
         
 
