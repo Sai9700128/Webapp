@@ -15,8 +15,8 @@ jobs:
     environment: development
 
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_DEV_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_DEV_SECRET_ACCESS_KEY }}
       GCP_ACCESS_KEY: ${{ secrets.GCP_ACCESS_KEY }}
 
       # Application Variables
@@ -61,8 +61,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_DEV_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_DEV_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.REGION }}
 
       - name: Configure GCP Credentials
@@ -114,10 +114,13 @@ jobs:
       - name: Run Packer Build
         working-directory: packer
         run: packer build AMI_ID=$(packer.pkr.hcl | tee /dev/tty | grep 'AMI ID' | awk '{print $3}')
-            echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+            echo "AMI_ID=$AMI_ID" >> $AWS_GITHUB_ENV
       
-      - name: Delete the AMI in AWS
-        run: aws ec2 deregister-image --image-id ${{ env.AMI_ID }} --region ${{ secrets.REGION }}
+      - name: Share AMI with DEMO Account
+        run: |
+          aws ec2 modify-image-attribute \
+            --image-id ${{ env.AMI_ID }} \
+            --launch-permission "Add=[{UserId=${{ secrets.DEMO_AWS_ACCOUNT_ID }}}, {Group=all}]"
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_DEV_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_DEV_SECRET_ACCESS_KEY }}
