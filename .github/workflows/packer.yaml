@@ -27,8 +27,8 @@ jobs:
         run: |
           packer fmt -check .  # Checks if the Packer template is correctly formatted. If modified, it fails
         working-directory: packer  # Navigate to the 'packer' directory before running the command
-        
+
       # Step 4: Run packer validate to validate the Packer template
-      - name: Run Packer Validate
+      - name: Run Packer Validate .
         run: |
           packer validate .  # Validates the Packer template. If it fails, the workflow fails
