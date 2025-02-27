@@ -48,6 +48,7 @@ variable "subnet_id" {
 
 variable "instance_type" {
   type = string
+  # default = "t2.micro"
 }
 
 variable "region" {
@@ -74,6 +75,7 @@ variable "GCP_ZONE" {
 
 variable "gcp_project_id" {
   type = string
+  # default = "dev-452121"
 }
 
 
