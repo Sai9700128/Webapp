@@ -117,7 +117,7 @@ source "amazon-ebs" "my-ami" {
   ssh_username = var.ssh_username
 
   # Storage Configuration
-  launch_block_device_mappings {
+  launch_block_device_mappings         {
     delete_on_termination = true        # Deletes the volume when the instance is terminated.
     device_name           = "/dev/sda1" # Specifies the root volume device name.
     # volume_size           = var.VOLUME_SIZE # Specifies the volume size in GiB.
