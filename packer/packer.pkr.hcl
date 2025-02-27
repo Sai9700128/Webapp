@@ -67,7 +67,7 @@ variable "AMI_DESCRIPTION" {
 
 # gcp configure
 
-variable "gcp-region" {
+variable "GCP_ZONE" {
   type    = string
   default = "us-central1-a"
 }
@@ -81,6 +81,7 @@ variable "OWNER_ID" {
   type    = string
   default = "099720109477"
 }
+
 
 variable "gcp_IMAGE_FAM_NAME" {
   type    = string
@@ -130,7 +131,7 @@ source "amazon-ebs" "my-ami" {
 source "googlecompute" "my-image" {
   project_id   = var.gcp_project_id
   source_image = "ubuntu-2204-jammy-v20250219"
-  zone         = var.gcp-region
+  zone         = var.GCP_ZONE
   machine_type = var.gcp_machine_type
   image_name   = "${var.gcp_IMAGE_FAM_NAME}-${formatdate("YYYY-MM-DD-HH-MM-ss", timestamp())}"
   image_family = var.gcp_IMAGE_FAM_NAME
@@ -140,7 +141,9 @@ source "googlecompute" "my-image" {
 # Build Configuration
 # Step 1
 build {
-  sources = ["source.amazon-ebs.my-ami", "source.googlecompute.my-image"]
+  sources = ["source.amazon-ebs.my-ami",
+            "source.googlecompute.my-image"
+  ]
 
 
   # Step 2

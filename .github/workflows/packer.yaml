@@ -27,8 +27,6 @@ jobs:
       PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
       PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
       PKR_VAR_REGION: ${{ secrets.REGION }}
-      PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
-      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
     services:
       mysql:
