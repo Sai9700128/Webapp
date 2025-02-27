@@ -17,20 +17,20 @@ jobs:
       DB_USRNAME: ${{ secrets.DB_USRNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
-      # # Packer Variables (Automatically Picked Up)
-      # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
-      # PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
-      # PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      # PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
-      # PKR_VAR_VOLUME_SIZE: ${{ secrets.VOLUME_SIZE }}
-      # PKR_VAR_VOLUME_TYPE: ${{ secrets.VOLUME_TYPE }}
-      # PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-      # PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
-      # PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
-      # PKR_VAR_REGION: ${{ secrets.REGION }}
-      # PKR_VAR_AMI_USER: ${{ secrets.AMI_USER }}
-      # PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
-      # PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
+      # Packer Variables (Automatically Picked Up)
+      PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
+      PKR_VAR_VOLUME_SIZE: ${{ secrets.VOLUME_SIZE }}
+      PKR_VAR_VOLUME_TYPE: ${{ secrets.VOLUME_TYPE }}
+      PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+      PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
+      PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
+      PKR_VAR_REGION: ${{ secrets.REGION }}
+      PKR_VAR_AMI_USER: ${{ secrets.AMI_USER }}
+      PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
+      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
 
     services:
       mysql:
@@ -53,12 +53,16 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       
-      - name: Build the HealthCheck JAR file
+      - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          PORT: ${{ secrets.PORT }}
         run: |
-          cd HealthCheck  # Navigate to the directory containing your Spring Boot app
-          mvn clean 
+          cd HealthCheck  # Navigate to the directory containing your Spring Boot application
           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
-        
+        working-directory: HealthCheck
 
 
       - name: Install Packer
