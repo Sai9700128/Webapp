@@ -21,7 +21,11 @@ jobs:
           sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"  # Add Packer repository
           sudo apt update && sudo apt install -y packer  # Install Packer
 
-
+      # Step 3: Initialize the Packer template
+      - name: Initialize Packer Template
+        run: |
+          packer init packer.pkr.hcl
+        working-directory: packer
       # Step 3: Run packer fmt to check formatting
       - name: Run Packer Format Check
         run: |
