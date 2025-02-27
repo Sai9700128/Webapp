@@ -142,7 +142,7 @@ source "googlecompute" "my-image" {
 # Step 1
 build {
   sources = ["source.amazon-ebs.my-ami",
-            "source.googlecompute.my-image"
+    "source.googlecompute.my-image"
   ]
 
 
