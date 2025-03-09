@@ -9,30 +9,30 @@ packer {
 
 # # General Configuration
 
-# variable "DB_URL" {
-#   type = string
-# }
+variable "DB_URL" {
+  type = string
+}
 
-# variable "DB_USRNAME" {
-#   type = string
-# }
+variable "DB_USRNAME" {
+  type = string
+}
 
-# variable "DB_PASSWORD" {
-#   type = string
-# }
+variable "DB_PASSWORD" {
+  type = string
+}
 
-# variable "DB_NAME" {
-#   type = string
-# }
+variable "DB_NAME" {
+  type = string
+}
 
-# variable "PRT_NBR" {
-#   type = string
-# }
+variable "PRT_NBR" {
+  type = string
+}
 
-# variable "SSH_USERNAME" {
-#   type    = string
-#   # default = "ubuntu"
-# }
+variable "SSH_USERNAME" {
+  type    = string
+  # default = "ubuntu"
+}
 
 # # gcp configurations
 
@@ -40,33 +40,33 @@ variable "GCP_PROJECT_ID" {
   type = string
   #   default = "gcp-dev-452117"
 }
-# variable "GCP_ZONE" {
-#   type    = string
-#   default = "us-central1-a"
-# }
-# variable "GCP_MACHINE_TYPE" {
-#   type = string
-#   default = "n1-standard-1"
-# }
-# variable "GCP_IMAGE_NAME" {
-#   type    = string
-#   default = "csye6225-health-checker-gcp"
-# }
-# variable "GCP_IMAGE_DESCRIPTION" {
-#   type    = string
-#   default = "Custom GCP Image for CSYE6225"
-# }
-# variable "GCP_DISK_SIZE" {
-#   type    = number
-#   default = 25
-# }
-# variable "GCP_DISK_TYPE" {
-#   type    = string
-#   default = "pd-balanced"
-# }
-# # variable "GCP_DEMO_PROJECT_ID" {
-# #   type = string
-# # }
+variable "GCP_ZONE" {
+  type    = string
+  # default = "us-central1-a"
+}
+
+variable "GCP_IMAGE_NAME" {
+  type    = string
+  default = "csye6225-health-checker-gcp"
+}
+variable "GCP_IMAGE_DESCRIPTION" {
+  type    = string
+  default = "Custom GCP Image for CSYE6225"
+}
+variable "GCP_DISK_SIZE" {
+  type    = number
+  default = 25
+}
+variable "GCP_DISK_TYPE" {
+  type    = string
+  default = "pd-balanced"
+}
+variable "GCP_DEMO_PROJECT_ID" {
+  type = string
+}
+variable "GCP_MACHINE_TYPE" {
+  type = string
+}
 
 
 
