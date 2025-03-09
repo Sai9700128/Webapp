@@ -27,6 +27,8 @@ jobs:
       PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
       PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
       PKR_VAR_REGION: ${{ secrets.REGION }}
+      PKR_VAR_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
 
     services:
       mysql:
@@ -38,7 +40,6 @@ jobs:
           MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -49,23 +50,13 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       
-      - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
-        env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          PORT: ${{ secrets.PORT }}
+      - name: Build the HealthCheck JAR file, Set Up Dependencies, and Run Tests
+        working-directory: HealthCheck
         run: |
-          cd HealthCheck  # Navigate to the directory containing your Spring Boot application
-          mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
-        
-
+          mvn clean -B package  # Build the JAR file (ensure pom.xml is correctly configured)
 
       - name: Install Packer
         uses: hashicorp/setup-packer@main
-
-      # - name: Install Packer Google Cloud Plugin
-      #   run: cd ../packer && packer plugins install github.com/hashicorp/googlecompute
 
       - name: Initialize Packer
         working-directory: packer
@@ -73,10 +64,24 @@ jobs:
 
       - name: Run Packer fmt Check
         working-directory: packer
-        run: |
-          packer fmt -check -diff .
+        run: packer fmt -check -diff .
         continue-on-error: false
 
-      - name: Run Packer Validate
+      - name: Run Packer Validate (AWS)
         working-directory: packer
-        run: packer validate -var "gcp_project_id=dev-452121" -var "subnet_id=subnet-060513e6e25a58f21" packer.pkr.hcl
+        run: |
+          packer validate -var "aws_region=${{ secrets.REGION }}" \
+                          -var "subnet_id=${{ secrets.SUBNET_ID }}" \
+                          aws_ami.pkr.hcl
+
+      - name: Authenticate GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Run Packer Validate (GCP)
+        working-directory: packer
+        run: |
+          packer validate -var "gcp_project_id=${{ secrets.GCP_PROJECT_ID }}" \
+                          -var "gcp_demo_project_id=${{ secrets.GCP_DEMO_PROJECT_ID }}" \
+                          gcp_image.pkr.hcl

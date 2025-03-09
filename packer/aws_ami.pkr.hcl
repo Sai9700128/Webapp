@@ -7,7 +7,7 @@ packer {
   }
 }
 
-# DB Configuration
+# # DB Configuration
 
 variable "DB_URL" {
   type = string
@@ -31,7 +31,7 @@ variable "PRT_NBR" {
 
 variable "SSH_USERNAME" {
   type    = string
-  default = "ubuntu"
+  # default = "ubuntu"
 }
 
 # aws configurations
@@ -39,32 +39,37 @@ variable "SSH_USERNAME" {
 # Default subnet id
 variable "SUBNET_ID" {
   type = string
-  # default = "subnet-060513e6e25a58f21"
+  # default = "subnet-0b41b887118645e4b"
 }
 
 variable "INSTANCE_TYPE" {
   type    = string
-  default = "t2.micro"
+  # default = "t2.micro"
 }
 
 variable "REGION" {
   type    = string
-  default = "us-east-1"
+  # default = "us-east-1"
 }
 
 variable "AMI_NAME" {
   type    = string
-  default = "csye6225_health_checker"
+  # default = "csye6225_health_checker"
 }
 
 variable "AMI_DESCRIPTION" {
   type    = string
-  default = "AMI for CSYE6225 Assignment 4"
+  # default = "AMI for CSYE6225 Assignment 4"
 }
 
 variable "OWNER_ID" {
-  type    = string
+  type = string
   # default = "099720109477"
+}
+
+variable "AMI_USER" {
+  type = string
+  # default = "443370706390"
 }
 
 
@@ -73,9 +78,9 @@ source "amazon-ebs" "AWS_AMI" {
   profile         = "dev"
   ami_name        = "${var.AMI_NAME}_${formatdate("YYYY_MM_DD_HH_MM_ss", timestamp())}"
   ami_description = var.AMI_DESCRIPTION
-  instance_type   = var.instance_type
-  region          = var.region
-  subnet_id       = var.subnet_id
+  instance_type   = var.INSTANCE_TYPE
+  region          = var.REGION
+  subnet_id       = var.SUBNET_ID
 
 
   # Base Image Selection
