@@ -4,11 +4,6 @@ packer {
       version = ">= 1.0.0, <2.0.0"
       source  = "github.com/hashicorp/amazon"
     }
-    google = {
-      version = ">= 1.0.0, <2.0.0"
-      source  = "github.com/hashicorp/googlecompute"
-    }
-
   }
 }
 
@@ -42,17 +37,17 @@ variable "SSH_USERNAME" {
 # aws configurations
 
 # Default subnet id
-variable "subnet_id" {
+variable "SUBNET_ID" {
   type = string
   # default = "subnet-060513e6e25a58f21"
 }
 
-variable "instance_type" {
+variable "INSTANCE_TYPE" {
   type    = string
   default = "t2.micro"
 }
 
-variable "region" {
+variable "REGION" {
   type    = string
   default = "us-east-1"
 }
@@ -69,47 +64,7 @@ variable "AMI_DESCRIPTION" {
 
 variable "OWNER_ID" {
   type    = string
-  default = "099720109477"
-}
-
-# gcp configurations
-
-variable "GCP_PROJECT_ID" {
-  type    = string
-  default = "dev-452121"
-}
-variable "GCP_ZONE" {
-  type    = string
-  default = "us-central1-a"
-}
-variable "GCP_MACHINE_TYPE" {
-  type = string
-  default = "n1-standard-1"
-}
-variable "GCP_IMAGE_NAME" {
-  type    = string
-  default = "csye6225-health-checker-gcp"
-}
-variable "GCP_IMAGE_DESCRIPTION" {
-  type    = string
-  default = "Custom GCP Image for CSYE6225"
-}
-variable "GCP_DISK_SIZE" {
-  type    = number
-  default = 25
-}
-variable "GCP_DISK_TYPE" {
-  type    = string
-  default = "pd-balanced"
-}
-variable "GCP_DEMO_PROJECT_ID" {
-  type = string
-  default = "pioneering-tome-453017-h5"
-}
-
-variable "AMI_USER" {
-  type = string
-  default = "443370706390"
+  # default = "099720109477"
 }
 
 
@@ -143,37 +98,15 @@ source "amazon-ebs" "AWS_AMI" {
     # volume_size           = var.VOLUME_SIZE # Specifies the volume size in GiB.
     # volume_type           = var.VOLUME_TYPE # Specifies the volume type (e.g., "gp2" for General Purpose SSD).
   }
+
   ami_users = [var.AMI_USER]
 }
 
 
-# Google Cloud Image Source Configuration
-source "googlecompute" "gcp_custom_ubuntu" {
-  project_id        = var.GCP_PROJECT_ID
-  zone              = var.GCP_ZONE
-  machine_type      = var.GCP_MACHINE_TYPE
-  image_name        = "${var.GCP_IMAGE_NAME}-${formatdate("YYYY-MM-DD-HH-mm-ss", timestamp())}"
-  image_family      = "csye6225-health-checker-family"
-  image_description = var.GCP_IMAGE_DESCRIPTION
-
-    disk_size = var.GCP_DISK_SIZE
-    disk_type = var.GCP_DISK_TYPE
-
-
-  # Use the latest Ubuntu 24.04 LTS image
-  source_image_family = "ubuntu-2204-lts"
-
-
-
-  ssh_username = var.SSH_USERNAME
-}
-
 # Build Configuration
 # Step 1
 build {
-  sources = ["source.amazon-ebs.AWS_AMI",
-    "source.googlecompute.gcp_custom_ubuntu"
-  ]
+  sources = ["source.amazon-ebs.AWS_AMI"]
 
 
   # Step 2
