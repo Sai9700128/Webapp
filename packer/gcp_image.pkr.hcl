@@ -37,8 +37,8 @@ packer {
 # # gcp configurations
 
 variable "GCP_PROJECT_ID" {
-  type    = string
-#   default = "gcp-dev-452117"
+  type = string
+  #   default = "gcp-dev-452117"
 }
 # variable "GCP_ZONE" {
 #   type    = string

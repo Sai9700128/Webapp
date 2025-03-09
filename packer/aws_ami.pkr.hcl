@@ -30,7 +30,7 @@ variable "PRT_NBR" {
 }
 
 variable "SSH_USERNAME" {
-  type    = string
+  type = string
   # default = "ubuntu"
 }
 
@@ -43,22 +43,22 @@ variable "SUBNET_ID" {
 }
 
 variable "INSTANCE_TYPE" {
-  type    = string
+  type = string
   # default = "t2.micro"
 }
 
 variable "REGION" {
-  type    = string
+  type = string
   # default = "us-east-1"
 }
 
 variable "AMI_NAME" {
-  type    = string
+  type = string
   # default = "csye6225_health_checker"
 }
 
 variable "AMI_DESCRIPTION" {
-  type    = string
+  type = string
   # default = "AMI for CSYE6225 Assignment 4"
 }
 
