@@ -89,4 +89,4 @@ jobs:
       - name: Run Packer Validate (GCP)
         working-directory: packer
         run: |
-          packer validate -var-file="gcp_variables.pkrvars.hcl" -var gcp_image.pkr.hcl
+          packer validate -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
