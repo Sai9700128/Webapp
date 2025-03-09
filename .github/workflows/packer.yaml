@@ -80,12 +80,7 @@ jobs:
       - name: Run Packer Validate (AWS)
         working-directory: packer
         run: |
-          packer validate -var-file="variables.pkrvars.hcl" -var "REGION=us-east-1" aws_ami.pkr.hcl  
-
-      - name: Authenticate GCP
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          packer validate -var-file="variables.pkrvars.hcl" -var "REGION=us-east-1" aws_ami.pkr.hcl
 
       - name: Run Packer Validate (GCP)
         working-directory: packer
