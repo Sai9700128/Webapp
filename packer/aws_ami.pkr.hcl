@@ -4,15 +4,10 @@ packer {
       version = ">= 1.0.0, <2.0.0"
       source  = "github.com/hashicorp/amazon"
     }
-    google = {
-      version = ">= 1.0.0, <2.0.0"
-      source  = "github.com/hashicorp/googlecompute"
-    }
-
   }
 }
 
-# General Configuration
+# # DB Configuration
 
 variable "DB_URL" {
   type = string
@@ -34,77 +29,58 @@ variable "PRT_NBR" {
   type = string
 }
 
-variable "ssh_username" {
-  type    = string
-  default = "ubuntu"
+variable "SSH_USERNAME" {
+  type = string
+  # default = "ubuntu"
 }
 
 # aws configurations
 
 # Default subnet id
-variable "subnet_id" {
+variable "SUBNET_ID" {
   type = string
-  # default = "subnet-060513e6e25a58f21"
+  # default = "subnet-0b41b887118645e4b"
 }
 
-variable "instance_type" {
-  type    = string
-  default = "t2.micro"
+variable "INSTANCE_TYPE" {
+  type = string
+  # default = "t2.micro"
 }
 
-variable "region" {
-  type    = string
-  default = "us-east-1"
+variable "REGION" {
+  type = string
+  # default = "us-east-1"
 }
 
 variable "AMI_NAME" {
-  type    = string
-  default = "csye6225_health_checker"
+  type = string
+  # default = "csye6225_health_checker"
 }
 
 variable "AMI_DESCRIPTION" {
-  type    = string
-  default = "AMI for CSYE6225 Assignment 4"
-}
-
-# gcp configure
-
-variable "GCP_ZONE" {
-  type    = string
-  default = "us-west2-c"
-}
-
-variable "gcp_project_id" {
   type = string
-  # default = "dev-452121"
+  # default = "AMI for CSYE6225 Assignment 4"
 }
-
 
 variable "OWNER_ID" {
-  type    = string
-  default = "099720109477"
+  type = string
+  # default = "099720109477"
 }
 
-
-variable "gcp_IMAGE_FAM_NAME" {
-  type    = string
-  default = "csye6225-health-checker"
-}
-
-variable "gcp_machine_type" {
-  type    = string
-  default = "n1-standard-1"
+variable "AMI_USER" {
+  type = string
+  # default = "443370706390"
 }
 
 
 # Amazon AMI Source Configuration
-source "amazon-ebs" "my-ami" {
+source "amazon-ebs" "AWS_AMI" {
   profile         = "dev"
   ami_name        = "${var.AMI_NAME}_${formatdate("YYYY_MM_DD_HH_MM_ss", timestamp())}"
   ami_description = var.AMI_DESCRIPTION
-  instance_type   = var.instance_type
-  region          = var.region
-  subnet_id       = var.subnet_id
+  instance_type   = var.INSTANCE_TYPE
+  region          = var.REGION
+  subnet_id       = var.SUBNET_ID
 
 
   # Base Image Selection
@@ -118,7 +94,7 @@ source "amazon-ebs" "my-ami" {
     owners      = [var.OWNER_ID] # Canonical’s official AWS account
   }
 
-  ssh_username = var.ssh_username
+  ssh_username = var.SSH_USERNAME
 
   # Storage Configuration
   launch_block_device_mappings {
@@ -127,26 +103,15 @@ source "amazon-ebs" "my-ami" {
     # volume_size           = var.VOLUME_SIZE # Specifies the volume size in GiB.
     # volume_type           = var.VOLUME_TYPE # Specifies the volume type (e.g., "gp2" for General Purpose SSD).
   }
+
+  ami_users = [var.AMI_USER]
 }
 
-
-# Google Cloud Image Source Configuration
-source "googlecompute" "my-image" {
-  project_id   = var.gcp_project_id
-  source_image = "ubuntu-2204-jammy-v20250219"
-  zone         = var.GCP_ZONE
-  machine_type = var.gcp_machine_type
-  image_name   = "${var.gcp_IMAGE_FAM_NAME}-${formatdate("YYYY-MM-DD-HH-MM-ss", timestamp())}"
-  image_family = var.gcp_IMAGE_FAM_NAME
-  ssh_username = var.ssh_username
-}
 
 # Build Configuration
 # Step 1
 build {
-  sources = ["source.amazon-ebs.my-ami",
-    "source.googlecompute.my-image"
-  ]
+  sources = ["source.amazon-ebs.AWS_AMI"]
 
 
   # Step 2
