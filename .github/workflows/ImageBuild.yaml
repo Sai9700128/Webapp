@@ -125,14 +125,14 @@ jobs:
           cd packer
           packer build -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
 
-      - name : Copy GCP Image to Demo Project
-        env:
-          GCP_ACCOUNT_ID: ${{ secrets.DEV_GCP_PROJECT_ID }}
-          DEMO_GCP_ACCOUNT_ID: ${{ secrets.DEV_GCP_PROJECT_ID }}
-        run: |
-          echo "Copying image from DEV ($DEV_GCP_PROJECT_ID) to DEMO ($DEMO_GCP_PROJECT_ID)..."
-          gcloud compute images create "csye6225-health-checker-gcp-${formatdate("YYYY-MM-DD-HH-mm-ss", timestamp()))" \
-            --source-image="$IMAGE_NAME" \
-            --source-image-project="$GCP_ACCOUNT_ID" \
-            --project="$GCP_DEMO_PROJECT_ID" \
-            --description="Copied from DEV on $(date)"
+      # - name : Copy GCP Image to Demo Project
+      #   env:
+      #     GCP_ACCOUNT_ID: ${{ secrets.DEV_GCP_PROJECT_ID }}
+      #     DEMO_GCP_ACCOUNT_ID: ${{ secrets.DEV_GCP_PROJECT_ID }}
+      #   run: |
+      #     echo "Copying image from DEV ($DEV_GCP_PROJECT_ID) to DEMO ($DEMO_GCP_PROJECT_ID)..."
+      #     gcloud compute images create "csye6225-health-checker-gcp-${formatdate("YYYY-MM-DD-HH-mm-ss", timestamp()))" \
+      #       --source-image="$IMAGE_NAME" \
+      #       --source-image-project="$GCP_ACCOUNT_ID" \
+      #       --project="$GCP_DEMO_PROJECT_ID" \
+      #       --description="Copied from DEV on $(date)"
