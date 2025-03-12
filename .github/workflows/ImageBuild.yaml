@@ -73,6 +73,10 @@ jobs:
       - name: Setting up GCP SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Setting GCP Access Key
+        run: |
+          echo '${{ secrets.GCP_ACCESS_KEY }}' >> .gcp-key.json
+
       - name: Set Up JDK 21
         uses: actions/setup-java@v3
         with:
@@ -115,10 +119,10 @@ jobs:
           cd packer
           packer build -var-file="ami_variables.pkrvars.hcl" aws_ami.pkr.hcl
 
-      # - name: Build GCP IMAGE with Packer
-      #   id: packer_gcp  # Unique ID for GCP build step
-      #   env:
-      #     GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_ACCESS_KEY }}
-      #   run: |
-      #     cd packer
-      #     packer build -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
+      - name: Build GCP IMAGE with Packer
+        id: packer_gcp  # Unique ID for GCP build step
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_ACCESS_KEY }}
+        run: |
+          cd packer
+          packer build -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
