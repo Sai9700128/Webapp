@@ -9,6 +9,6 @@ SSH_USERNAME    = "ubuntu"
 GCP_DISK_SIZE  = 25
 GCP_DISK_TYPE  = "pd-balanced"
 GCP_DEMO_PROJECT_ID = "pioneering-tome-453017-h5"
-GCP_MACHINE_TYPE = "n1-standard-1"
+GCP_MACHINE_TYPE = "e2-micro"
 GCP_IMAGE_NAME = "csye6225-health-checker-gcp"
 GCP_IMAGE_DESCRIPTION = "Custom GCP Image for CSYE6225"

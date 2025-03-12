@@ -6,6 +6,7 @@ After=network.target
 User=csye6225
 Group=csye6225
 Type=simple
+EnvironmentFile=/etc/environment
 ExecStart=java -jar /opt/csye6225/health-checker-0.0.1-SNAPSHOT.jar
 Restart=always
 RestartSec=3
