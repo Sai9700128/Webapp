@@ -110,11 +110,13 @@ jobs:
           packer validate -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
 
       - name: Build AWS AMI with Packer
+        id: packer_aws  # Unique ID for AWS build step
         run: |
           cd packer
           packer build -var-file="ami_variables.pkrvars.hcl" aws_ami.pkr.hcl
 
       - name: Build GCP IMAGE with Packer
+        id: packer_gcp  # Unique ID for GCP build step
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_ACCESS_KEY }}
         run: |
