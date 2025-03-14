@@ -43,9 +43,9 @@ mysql -u root -p"${DB_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
 
 
 # Setup environment variables
-echo "DB_URL=${DB_URL}" | sudo tee -a /etc/environment
-echo "DB_USRNAME=${DB_USRNAME}" | sudo tee -a /etc/environment
-echo "DB_PASSWORD=${DB_PASSWORD}" | sudo tee -a /etc/environment
+"DB_URL=${DB_URL}" | sudo tee -a /etc/environment
+"DB_USRNAME=${DB_USRNAME}" | sudo tee -a /etc/environment
+"DB_PASSWORD=${DB_PASSWORD}" | sudo tee -a /etc/environment
 
 # Make sure the changes take effect
 source /etc/environment
