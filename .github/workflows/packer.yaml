@@ -14,15 +14,15 @@ jobs:
     env:
       # Application Variables
       DB_URL: ${{ secrets.DB_URL }}
-      DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      DB_USRNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
       # Packer Variables (Automatically Picked Up)
       PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
-      PKR_VAR_PRT_NBR: ${{ secrets.PRT_NBR }}
-      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      PKR_VAR_PRT_NBR: ${{ secrets.PORT }}
+      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USERNAME }}
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
+      PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
       PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
       PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
       PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
@@ -35,7 +35,7 @@ jobs:
           - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
 
@@ -94,9 +94,9 @@ jobs:
       - name: Run Packer Validate (AWS)
         working-directory: packer
         run: |
-          packer validate -var-file="ami_variables.pkrvars.hcl" aws_ami.pkr.hcl
+          packer validate aws_ami.pkr.hcl
 
       - name: Run Packer Validate (GCP)
         working-directory: packer
         run: |
-          packer validate -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
+          packer validate gcp_image.pkr.hcl
