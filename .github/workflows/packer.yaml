@@ -24,7 +24,7 @@ jobs:
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
       PKR_VAR_SUBNET_ID: ${{ secrets.AWS_SUBNET_ID }}
-      PKR_VAR_AWI_USER: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
+      PKR_VAR_AMI_USER: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
       PKR_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
       PKR_VAR_OWNER_ID: ${{ secrets.UBUNTU_OWNER_ID }}
       PKR_VAR_AWS_INSTANCE_TYPE: ${{ secrets.AWS_INSTANCE_TYPE }}
