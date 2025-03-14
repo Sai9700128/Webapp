@@ -34,7 +34,7 @@ sudo systemctl enable mysql
 
 
 # Set root password and change authentication plugin to mysql_native_password
-sudo mysql -e "ALTER USER '${DB_USERNAME}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${DB_PASSWORD}';FLUSH PRIVILEGES;"
+sudo mysql -e "ALTER USER '${DB_USRNAME}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${DB_PASSWORD}';FLUSH PRIVILEGES;"
 
 # Create the database if it doesn't exist
 
@@ -44,7 +44,7 @@ mysql -u root -p"${DB_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME};"
 
 # Setup environment variables
 echo "DB_URL=${DB_URL}" | sudo tee -a /etc/environment
-echo "DB_USRNAME=${DB_USERNAME}" | sudo tee -a /etc/environment
+echo "DB_USRNAME=${DB_USRNAME}" | sudo tee -a /etc/environment
 echo "DB_PASSWORD=${DB_PASSWORD}" | sudo tee -a /etc/environment
 
 # Make sure the changes take effect
