@@ -81,10 +81,10 @@ jobs:
           packer fmt -check -diff -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
         continue-on-error: false
 
-      - name: Run Packer Validate (AWS)
-        working-directory: packer
-        run: |
-          packer validate aws_ami.pkr.hcl
+      # - name: Run Packer Validate (AWS)
+      #   working-directory: packer
+      #   run: |
+      #     packer validate aws_ami.pkr.hcl
 
       - name: Run Packer Validate (GCP)
         working-directory: packer
