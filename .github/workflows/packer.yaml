@@ -73,11 +73,11 @@ jobs:
       # - name: Install Packer Google Cloud Plugin
       #   run: cd ../packer && packer plugins install github.com/hashicorp/googlecompute
 
-      - name: Initialize Packer
-        working-directory: packer
-        run: |
-          packer init gcp_image.pkr.hcl
-          packer init aws_ami.pkr.hcl
+      # - name: Initialize Packer
+      #   working-directory: packer
+      #   run: |
+      #     packer init gcp_image.pkr.hcl
+      #     packer init aws_ami.pkr.hcl
 
 
       - name: Run Packer fmt Check
