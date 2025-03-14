@@ -30,8 +30,8 @@ variable "PRT_NBR" {
 }
 
 variable "SSH_USERNAME" {
-  type = string
-  # default = "ubuntu"
+  type    = string
+  default = "ubuntu"
 }
 
 # # gcp configurations
@@ -41,8 +41,8 @@ variable "GCP_PROJECT_ID" {
   #   default = "gcp-dev-452117"
 }
 variable "GCP_ZONE" {
-  type = string
-  # default = "us-central1-a"
+  type    = string
+  default = "us-central1-a"
 }
 
 variable "GCP_IMAGE_NAME" {
@@ -134,3 +134,4 @@ build {
 
 
 }
+

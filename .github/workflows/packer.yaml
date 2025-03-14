@@ -14,19 +14,24 @@ jobs:
     env:
       # Application Variables
       DB_URL: ${{ secrets.DB_URL }}
-      DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      DB_USRNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
       # Packer Variables (Automatically Picked Up)
       PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
-      PKR_VAR_PRT_NBR: ${{ secrets.PRT_NBR }}
-      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USRNAME }}
+      PKR_VAR_PRT_NBR: ${{ secrets.PORT }}
+      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USERNAME }}
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
-      PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-      PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
-      PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
-      PKR_VAR_REGION: ${{ secrets.REGION }}
+      PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
+      PKR_VAR_SUBNET_ID: ${{ secrets.AWS_SUBNET_ID }}
+      PKR_VAR_AMI_USER: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
+      PKR_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
+      PKR_VAR_OWNER_ID: ${{ secrets.UBUNTU_OWNER_ID }}
+      PKR_VAR_AWS_INSTANCE_TYPE: ${{ secrets.AWS_INSTANCE_TYPE }}
+      PKR_VAR_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
+      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
+      PKR_VAR_GCP_ZONE: ${{ secrets.GCP_ZONE }}
 
     services:
       mysql:
@@ -35,7 +40,7 @@ jobs:
           - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
 
@@ -51,10 +56,10 @@ jobs:
       
       - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
         env:
-          DB_URL: ${{ secrets.DB_URL }}
+          DB_URL: ${{ secrets.DB_URL}}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          PORT: ${{ secrets.PORT }}
+          # PORT: ${{ secrets.PORT }}
         run: |
           cd HealthCheck  # Navigate to the directory containing your Spring Boot application
           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
@@ -74,19 +79,19 @@ jobs:
           packer init aws_ami.pkr.hcl
 
 
-      - name: Run Packer fmt Check 
+      - name: Run Packer fmt Check
         working-directory: packer
         run: |
-          packer fmt -check -diff -var-file="ami_variables.pkrvars.hcl" aws_ami.pkr.hcl
-          packer fmt -check -diff -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
+          packer fmt -check -diff aws_ami.pkr.hcl
+          packer fmt -check -diff gcp_image.pkr.hcl
         continue-on-error: false
 
       - name: Run Packer Validate (AWS)
         working-directory: packer
         run: |
-          packer validate -var-file="ami_variables.pkrvars.hcl" aws_ami.pkr.hcl
+          packer validate aws_ami.pkr.hcl
 
       - name: Run Packer Validate (GCP)
         working-directory: packer
         run: |
-          packer validate -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
+          packer validate gcp_image.pkr.hcl
