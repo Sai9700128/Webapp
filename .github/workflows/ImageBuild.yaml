@@ -30,7 +30,7 @@ jobs:
       PKR_VAR_PORT_NUMBER: ${{ secrets.PORT }}
       PKR_VAR_DB_USERNAME: ${{ secrets.DB_USERNAME }}
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      PKR_VAR_DB_NAME: ${{ secrets.DB_DATABASE }}
+      PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
       PKR_VAR_VOLUME_SIZE: ${{ secrets.VOLUME_SIZE }}
       PKR_VAR_VOLUME_TYPE: ${{ secrets.VOLUME_TYPE }}
       PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}

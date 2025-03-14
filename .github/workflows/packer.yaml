@@ -54,7 +54,7 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          PORT: ${{ secrets.PORT }}
+          # PORT: ${{ secrets.PORT }}
         run: |
           cd HealthCheck  # Navigate to the directory containing your Spring Boot application
           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
@@ -74,7 +74,7 @@ jobs:
           packer init aws_ami.pkr.hcl
 
 
-      - name: Run Packer fmt Check 
+      - name: Run Packer fmt Check
         working-directory: packer
         run: |
           packer fmt -check -diff -var-file="ami_variables.pkrvars.hcl" aws_ami.pkr.hcl
