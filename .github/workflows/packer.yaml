@@ -23,10 +23,13 @@ jobs:
       PKR_VAR_DB_USERNAME: ${{ secrets.DB_USERNAME }}
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
-      PKR_VAR_SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-      PKR_VAR_SUBNET_ID: ${{ secrets.SUBNET_ID }}
-      PKR_VAR_INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
-      PKR_VAR_REGION: ${{ secrets.REGION }}
+      PKR_VAR_SUBNET_ID: ${{ secrets.AWS_SUBNET_ID }}
+      PKR_VAR_AWS_DEMO_ACCOUNT_ID: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
+      PKR_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
+      PKR_VAR_AWS_INSTANCE_TYPE: ${{ secrets.AWS_INSTANCE_TYPE }}
+      PKR_VAR_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
+      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
 
     services:
       mysql:
@@ -77,14 +80,14 @@ jobs:
       - name: Run Packer fmt Check
         working-directory: packer
         run: |
-          packer fmt -check -diff -var-file="ami_variables.pkrvars.hcl" aws_ami.pkr.hcl
-          packer fmt -check -diff -var-file="gcp_variables.pkrvars.hcl" gcp_image.pkr.hcl
+          packer fmt -check -diff aws_ami.pkr.hcl
+          packer fmt -check -diff gcp_image.pkr.hcl
         continue-on-error: false
 
-      # - name: Run Packer Validate (AWS)
-      #   working-directory: packer
-      #   run: |
-      #     packer validate aws_ami.pkr.hcl
+      - name: Run Packer Validate (AWS)
+        working-directory: packer
+        run: |
+          packer validate aws_ami.pkr.hcl
 
       - name: Run Packer Validate (GCP)
         working-directory: packer

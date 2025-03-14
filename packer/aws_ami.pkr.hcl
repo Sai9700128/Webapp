@@ -31,7 +31,7 @@ variable "PRT_NBR" {
 
 variable "SSH_USERNAME" {
   type = string
-  # default = "ubuntu"
+  default = "ubuntu"
 }
 
 # aws configurations
@@ -44,32 +44,30 @@ variable "SUBNET_ID" {
 
 variable "INSTANCE_TYPE" {
   type = string
-  # default = "t2.micro"
+  default = "t2.micro"
 }
 
 variable "REGION" {
   type = string
-  # default = "us-east-1"
+  default = "us-east-1"
 }
 
 variable "AMI_NAME" {
   type = string
-  # default = "csye6225_health_checker"
+  default = "csye6225_health_checker"
 }
 
 variable "AMI_DESCRIPTION" {
   type = string
-  # default = "AMI for CSYE6225 Assignment 4"
+  default = "AMI for CSYE6225 Assignment 4"
 }
 
 variable "OWNER_ID" {
   type = string
-  # default = "099720109477"
 }
 
-variable "AMI_USER" {
+variable "AWS_DEMO_ACCOUNT_ID" {
   type = string
-  # default = "443370706390"
 }
 
 
