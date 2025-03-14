@@ -66,7 +66,7 @@ variable "OWNER_ID" {
   type = string
 }
 
-variable "AWI_USER" {
+variable "AMI_USER" {
   type = string
 }
 
