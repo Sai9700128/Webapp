@@ -50,14 +50,10 @@ jobs:
           java-version: '21'
 
       - name: Set Up Dependencies and Run Tests
-        env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          "echo $DB_URL"
-          "echo $DB_USERNAME"
-          "echo $DB_PASSWORD"
+          "echo ${{ secrets.DB_URL }}"
+          "echo ${{ secrets.DB_USERNAME }}
+          "echo ${{secrets.DB_NAME }}"
       
       - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
         env:
