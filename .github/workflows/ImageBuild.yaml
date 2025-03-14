@@ -50,7 +50,7 @@ jobs:
           MYSQL_ROOT_URL: ${{ secrets.DB_URL }}
           MYSQL_ROOT_USERNAME: ${{ secrets.DB_USERNAME }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
@@ -99,7 +99,7 @@ jobs:
           packer init gcp_image.pkr.hcl
           packer init aws_ami.pkr.hcl
 
-      - name: Run Packer fmt Check 
+      - name: Run Packer fmt Check
         working-directory: packer
         run: |
           packer fmt -check -diff aws_ami.pkr.hcl
