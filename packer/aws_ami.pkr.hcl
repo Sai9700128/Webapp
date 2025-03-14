@@ -13,7 +13,7 @@ variable "DB_URL" {
   type = string
 }
 
-variable "DB_USRNAME" {
+variable "DB_USERNAME" {
   type = string
 }
 
@@ -117,7 +117,7 @@ build {
   provisioner "shell" {
     environment_vars = [
       "DB_URL=${var.DB_URL}",
-      "DB_USRNAME=${var.DB_USRNAME}",
+      "DB_USERNAME=${var.DB_USERNAME}",
       "DB_PASSWORD=${var.DB_PASSWORD}",
       "DB_NAME=${var.DB_NAME}",
       "PRT_NBR=${var.PRT_NBR}"

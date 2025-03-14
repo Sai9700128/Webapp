@@ -28,7 +28,7 @@ jobs:
       # Packer Variables
       PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
       PKR_VAR_PRT_NBR: ${{ secrets.PORT }}
-      PKR_VAR_DB_USRNAME: ${{ secrets.DB_USERNAME }}
+      PKR_VAR_DB_USERNAME: ${{ secrets.DB_USERNAME }}
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
       PKR_VAR_SUBNET_ID: ${{ secrets.AWS_SUBNET_ID }}

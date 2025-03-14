@@ -1,5 +1,5 @@
 DB_URL          = "jdbc:mysql://localhost:3306/health_checker_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true"
-DB_USRNAME      = "root"
+DB_USERNAME      = "root"
 DB_PASSWORD     = "S@i112002"
 DB_NAME         = "health_checker_db"
 PRT_NBR         = "8080"
