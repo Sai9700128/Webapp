@@ -13,12 +13,12 @@ jobs:
 
     env:
       # Application Variables
-      DB_URL: ${{ secrets.DB_URL }}
-      DB_USRNAME: ${{ secrets.DB_USERNAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_URL: ${{secrets.DB_URL}}
+      DB_USRNAME: ${{secrets.DB_USERNAME}}
+      DB_PASSWORD: ${{secrets.DB_PASSWORD}}
 
       # Packer Variables (Automatically Picked Up)
-      PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      PKR_VAR_DB_URL: ${{secrets.DB_URL}}
       PKR_VAR_PRT_NBR: ${{ secrets.PORT }}
       PKR_VAR_DB_USERNAME: ${{ secrets.DB_USERNAME }}
       PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -34,8 +34,8 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+          MYSQL_ROOT_PASSWORD: ${{secrets.DB_PASSWORD}}
+          MYSQL_DATABASE: ${{secrets.DB_NAME}}
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
 
@@ -51,15 +51,15 @@ jobs:
 
       - name: Set Up Dependencies and Run Tests
         run: |
-          "echo ${{ secrets.DB_URL }}"
-          "echo ${{ secrets.DB_USERNAME }}
-          "echo ${{secrets.DB_NAME }}"
+          "echo ${{secrets.DB_URL}}"
+          "echo ${{secrets.DB_USERNAME}}
+          "echo ${{secrets.DB_NAME}}"
       
       - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
         env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_URL: ${{ secrets.DB_URL}}
+          DB_USERNAME: ${{secrets.DB_USERNAME}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
           # PORT: ${{ secrets.PORT }}
         run: |
           cd HealthCheck  # Navigate to the directory containing your Spring Boot application
