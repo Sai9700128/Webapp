@@ -66,7 +66,7 @@ variable "OWNER_ID" {
   type = string
 }
 
-variable "AWS_DEMO_ACCOUNT_ID" {
+variable "AWI_USER" {
   type = string
 }
 
