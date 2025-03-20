@@ -1,93 +1,93 @@
-# name: Packer Continuous Integration
+name: Packer Continuous Integration
 
-# on:
-#   pull_request:
-#     branches:
-#       - main
+on:
+  pull_request:
+    branches:
+      - main
 
-# jobs:
-#   test-development:
-#     name: Run Application Tests and Validate Packer
-#     runs-on: ubuntu-latest
-#     environment: development
+jobs:
+  test-development:
+    name: Run Application Tests and Validate Packer
+    runs-on: ubuntu-latest
+    environment: development
 
-#     env:
-#       # Application Variables
-#       DB_URL: ${{ secrets.DB_URL }}
-#       DB_USERNAME: ${{ secrets.DB_USERNAME }}
-#       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+    env:
+      # Application Variables
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
-#       # Packer Variables (Automatically Picked Up)
-#       # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
-#       # PKR_VAR_PRT_NBR: ${{ secrets.PORT }}
-#       # PKR_VAR_DB_USERNAME: ${{ secrets.DB_USERNAME }}
-#       # PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#       # PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
-#       PKR_VAR_SUBNET_ID: ${{ secrets.AWS_SUBNET_ID }}
-#       PKR_VAR_AMI_USER: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
-#       PKR_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
-#       PKR_VAR_OWNER_ID: ${{ secrets.UBUNTU_OWNER_ID }}
-#       PKR_VAR_AWS_INSTANCE_TYPE: ${{ secrets.AWS_INSTANCE_TYPE }}
-#       PKR_VAR_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-#       PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
-#       PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
-#       PKR_VAR_GCP_ZONE: ${{ secrets.GCP_ZONE }}
+      # Packer Variables (Automatically Picked Up)
+      # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      # PKR_VAR_PRT_NBR: ${{ secrets.PORT }}
+      # PKR_VAR_DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      # PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      # PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
+      PKR_VAR_SUBNET_ID: ${{ secrets.AWS_SUBNET_ID }}
+      PKR_VAR_AMI_USER: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
+      PKR_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
+      PKR_VAR_OWNER_ID: ${{ secrets.UBUNTU_OWNER_ID }}
+      PKR_VAR_AWS_INSTANCE_TYPE: ${{ secrets.AWS_INSTANCE_TYPE }}
+      PKR_VAR_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
+      PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
+      PKR_VAR_GCP_ZONE: ${{ secrets.GCP_ZONE }}
 
-#     services:
-#       mysql:
-#         image: mysql:8
-#         ports:
-#           - 3306:3306
-#         env:
-#           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#           MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-#         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-#       - name: Set Up JDK 21
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: "temurin"
-#           java-version: "21"
+      - name: Set Up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "21"
 
-#       - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
-#         env:
-#           DB_URL: ${{ secrets.DB_URL}}
-#           DB_USERNAME: ${{ secrets.DB_USERNAME }}
-#           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#           # PORT: ${{ secrets.PORT }}
-#         run: |
-#           cd HealthCheck  # Navigate to the directory containing your Spring Boot application
-#           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
+      - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
+        env:
+          DB_URL: ${{ secrets.DB_URL}}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          # PORT: ${{ secrets.PORT }}
+        run: |
+          cd HealthCheck  # Navigate to the directory containing your Spring Boot application
+          mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
 
-#       - name: Install Packer
-#         uses: hashicorp/setup-packer@main
+      - name: Install Packer
+        uses: hashicorp/setup-packer@main
 
-#       # - name: Install Packer Google Cloud Plugin
-#       #   run: cd ../packer && packer plugins install github.com/hashicorp/googlecompute
+      # - name: Install Packer Google Cloud Plugin
+      #   run: cd ../packer && packer plugins install github.com/hashicorp/googlecompute
 
-#       - name: Initialize Packer
-#         working-directory: packer
-#         run: |
-#           packer init gcp_image.pkr.hcl
-#           packer init aws_ami.pkr.hcl
+      - name: Initialize Packer
+        working-directory: packer
+        run: |
+          packer init gcp_image.pkr.hcl
+          packer init aws_ami.pkr.hcl
 
-#       - name: Run Packer fmt Check
-#         working-directory: packer
-#         run: |
-#           packer fmt -check -diff aws_ami.pkr.hcl
-#           packer fmt -check -diff gcp_image.pkr.hcl
-#         continue-on-error: false
+      - name: Run Packer fmt Check
+        working-directory: packer
+        run: |
+          packer fmt -check -diff aws_ami.pkr.hcl
+          packer fmt -check -diff gcp_image.pkr.hcl
+        continue-on-error: false
 
-#       - name: Run Packer Validate (AWS)
-#         working-directory: packer
-#         run: |
-#           packer validate aws_ami.pkr.hcl
+      - name: Run Packer Validate (AWS)
+        working-directory: packer
+        run: |
+          packer validate aws_ami.pkr.hcl
 
-#       - name: Run Packer Validate (GCP)
-#         working-directory: packer
-#         run: |
-#           packer validate gcp_image.pkr.hcl
+      - name: Run Packer Validate (GCP)
+        working-directory: packer
+        run: |
+          packer validate gcp_image.pkr.hcl

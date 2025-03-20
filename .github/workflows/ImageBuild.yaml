@@ -1,138 +1,138 @@
-# name: Packer Image Build on PR Merge
+name: Packer Image Build on PR Merge
 
-# on:
-#   pull_request:
-#     branches:
-#       - main
-#     types:
-#       - closed # Runs workflow when a pull request is merged
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed # Runs workflow when a pull request is merged
 
-# jobs:
-#   build-packer-image:
-#     if: github.event.pull_request.merged == true
-#     name: Package Application and Build Packer AMI
-#     runs-on: ubuntu-latest
-#     environment: development
+jobs:
+  build-packer-image:
+    if: github.event.pull_request.merged == true
+    name: Package Application and Build Packer AMI
+    runs-on: ubuntu-latest
+    environment: development
 
-#     env:
-#       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_DEV_IAM_ACCESS_KEY }}
-#       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_DEV_IAM_SECRET_KEY }}
-#       GCP_ACCESS_KEY: ${{ secrets.GCP_ACCESS_KEY }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_DEV_IAM_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_DEV_IAM_SECRET_KEY }}
+      GCP_ACCESS_KEY: ${{ secrets.GCP_ACCESS_KEY }}
 
-#       # Application Variables
-#       DB_URL: ${{ secrets.DB_URL }}
-#       DB_USERNAME: ${{ secrets.DB_USERNAME }}
-#       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#       PORT: ${{ secrets.PORT }}
+      # Application Variables
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      PORT: ${{ secrets.PORT }}
 
-#       # Packer Variables
-#       # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
-#       # PKR_VAR_PRT_NBR: ${{ secrets.PORT }}
-#       # PKR_VAR_DB_USERNAME: ${{ secrets.DB_USERNAME }}
-#       # PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#       # PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
-#       PKR_VAR_SUBNET_ID: ${{ secrets.AWS_SUBNET_ID }}
-#       PKR_VAR_AMI_USER: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
-#       PKR_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
-#       PKR_VAR_OWNER_ID: ${{ secrets.UBUNTU_OWNER_ID }}
-#       PKR_VAR_AWS_INSTANCE_TYPE: ${{ secrets.AWS_INSTANCE_TYPE }}
-#       # PKR_VAR_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-#       # PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
-#       # PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
-#       # PKR_VAR_GCP_ZONE: ${{ secrets.GCP_ZONE }}
+      # Packer Variables
+      # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
+      # PKR_VAR_PRT_NBR: ${{ secrets.PORT }}
+      # PKR_VAR_DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      # PKR_VAR_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      # PKR_VAR_DB_NAME: ${{ secrets.DB_NAME }}
+      PKR_VAR_SUBNET_ID: ${{ secrets.AWS_SUBNET_ID }}
+      PKR_VAR_AMI_USER: ${{ secrets.AWS_DEMO_ACCOUNT_ID }}
+      PKR_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
+      PKR_VAR_OWNER_ID: ${{ secrets.UBUNTU_OWNER_ID }}
+      PKR_VAR_AWS_INSTANCE_TYPE: ${{ secrets.AWS_INSTANCE_TYPE }}
+      # PKR_VAR_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      # PKR_VAR_GCP_MACHINE_TYPE: ${{ secrets.GCP_MACHINE_TYPE }}
+      # PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
+      # PKR_VAR_GCP_ZONE: ${{ secrets.GCP_ZONE }}
 
-#     # services:
-#     # mysql:
-#     #   image: mysql:8
-#     #   ports:
-#     #     - 3306:3306
-#     #   env:
-#     #     MYSQL_ROOT_URL: ${{ secrets.DB_URL }}
-#     #     MYSQL_ROOT_USERNAME: ${{ secrets.DB_USERNAME }}
-#     #     MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#     #     MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-#     #   options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+    # services:
+    # mysql:
+    #   image: mysql:8
+    #   ports:
+    #     - 3306:3306
+    #   env:
+    #     MYSQL_ROOT_URL: ${{ secrets.DB_URL }}
+    #     MYSQL_ROOT_USERNAME: ${{ secrets.DB_USERNAME }}
+    #     MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+    #     MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+    #   options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-#       - name: Install AWS CLI
-#         uses: unfor19/install-aws-cli-action@v1
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@v1
 
-#       - name: Configure AWS Credentials
-#         uses: aws-actions/configure-aws-credentials@v2
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_DEV_IAM_ACCESS_KEY }}
-#           aws-secret-access-key: ${{ secrets.AWS_DEV_IAM_SECRET_KEY }}
-#           aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEV_IAM_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_DEV_IAM_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-#       # - name: Configure GCP Credentials
-#       #   uses: google-github-actions/auth@v1
-#       #   with:
-#       #     credentials_json: ${{ secrets.GCP_ACCESS_KEY }}
+      # - name: Configure GCP Credentials
+      #   uses: google-github-actions/auth@v1
+      #   with:
+      #     credentials_json: ${{ secrets.GCP_ACCESS_KEY }}
 
-#       # - name: Setting up GCP SDK
-#       #   uses: google-github-actions/setup-gcloud@v2
+      # - name: Setting up GCP SDK
+      #   uses: google-github-actions/setup-gcloud@v2
 
-#       # - name: Setting GCP Access Key
-#       #   run: |
-#       #     echo '${{ secrets.GCP_ACCESS_KEY }}' >> .gcp-key.json
+      # - name: Setting GCP Access Key
+      #   run: |
+      #     echo '${{ secrets.GCP_ACCESS_KEY }}' >> .gcp-key.json
 
-#       - name: Set Up JDK 21
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: "temurin"
-#           java-version: "21"
+      - name: Set Up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "21"
 
-#       - name: Build the HealthCheck JAR file and Run Tests
-#         run: |
-#           cd HealthCheck  # Navigate to Spring Boot app directory
-#           mvn clean -B package
+      - name: Build the HealthCheck JAR file and Run Tests
+        run: |
+          cd HealthCheck  # Navigate to Spring Boot app directory
+          mvn clean -B package
 
-#       - name: Install Packer
-#         uses: hashicorp/setup-packer@main
+      - name: Install Packer
+        uses: hashicorp/setup-packer@main
 
-#       - name: Initialize Packer
-#         working-directory: packer
-#         run: |
-#           packer init gcp_image.pkr.hcl
+      - name: Initialize Packer
+        working-directory: packer
+        run: |
+          packer init gcp_image.pkr.hcl
 
-#       - name: Run Packer fmt Check
-#         working-directory: packer
-#         run: |
-#           packer fmt -check -diff aws_ami.pkr.hcl
+      - name: Run Packer fmt Check
+        working-directory: packer
+        run: |
+          packer fmt -check -diff aws_ami.pkr.hcl
 
-#       - name: Run Packer Validate (AWS)
-#         working-directory: packer
-#         run: |
-#           packer validate aws_ami.pkr.hcl
+      - name: Run Packer Validate (AWS)
+        working-directory: packer
+        run: |
+          packer validate aws_ami.pkr.hcl
 
-#       # - name: Run Packer Validate (GCP)
-#       #   working-directory: packer
-#       #   run: |
-#       #     packer validate gcp_image.pkr.hcl
+      # - name: Run Packer Validate (GCP)
+      #   working-directory: packer
+      #   run: |
+      #     packer validate gcp_image.pkr.hcl
 
-#       - name: Build AWS AMI with Packer
-#         id: packer_aws # Unique ID for AWS build step
-#         run: |
-#           cd packer
-#           packer build aws_ami.pkr.hcl
+      - name: Build AWS AMI with Packer
+        id: packer_aws # Unique ID for AWS build step
+        run: |
+          cd packer
+          packer build aws_ami.pkr.hcl
 
-#       # - name: Build GCP IMAGE with Packer
-#       #   id: packer_gcp  # Unique ID for GCP build step
-#       #   run: |
-#       #     cd packer
-#       #     packer build gcp_image.pkr.hcl
+      # - name: Build GCP IMAGE with Packer
+      #   id: packer_gcp  # Unique ID for GCP build step
+      #   run: |
+      #     cd packer
+      #     packer build gcp_image.pkr.hcl
 
-#       # - name : Sharing GCP Image to Demo Project
-#       #   env:
-#       #     GCP_ACCOUNT_ID: ${{ secrets.GCP_PROJECT_ID }}
-#       #     DEMO_GCP_ACCOUNT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
-#       #   run: |
-#       #     echo "Sharing image from DEV to DEMO project"
-#       #     gcloud compute images create "csye6225-health-checker-gcp-${formatdate("YYYY-MM-DD-HH-mm-ss", timestamp()))" \
-#       #       --source-image="$GCP_IMAGE_NAME" \
-#       #       --source-image-project="$GCP_PROJECT_ID" \
-#       #       --project="$GCP_DEMO_PROJECT_ID" \
-#       #       --description="Image for CSYE6225 Health Checker shared from Dev Project"
+      # - name : Sharing GCP Image to Demo Project
+      #   env:
+      #     GCP_ACCOUNT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      #     DEMO_GCP_ACCOUNT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
+      #   run: |
+      #     echo "Sharing image from DEV to DEMO project"
+      #     gcloud compute images create "csye6225-health-checker-gcp-${formatdate("YYYY-MM-DD-HH-mm-ss", timestamp()))" \
+      #       --source-image="$GCP_IMAGE_NAME" \
+      #       --source-image-project="$GCP_PROJECT_ID" \
+      #       --project="$GCP_DEMO_PROJECT_ID" \
+      #       --description="Image for CSYE6225 Health Checker shared from Dev Project"
