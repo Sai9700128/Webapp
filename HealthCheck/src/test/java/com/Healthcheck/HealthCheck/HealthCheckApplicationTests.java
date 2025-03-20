@@ -13,7 +13,7 @@ class HealthCheckApplicationTests {
     @BeforeAll
     public static void setup() {
         RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;  // Change if running on a different port
+        RestAssured.port = 8080; // Change if running on a different port
     }
 
     @Test
@@ -41,29 +41,28 @@ class HealthCheckApplicationTests {
 
     @Test
     void testRequestNotAllowed405() {
-        
-         // List of all methods to test except GET
-         String[] methods = {"POST", "PUT", "DELETE", "PATCH"};
 
-         for (String method : methods) {
-             given()
-                     .when()
-                     .request(method , "/healthz")  // Using dynamic method (POST, PUT, DELETE, PATCH, HEAD)
-                     .then()
-                     .statusCode(405);  // Should return 405 Method Not Allowed
-         }
- 
+        // List of all methods to test except GET
+        String[] methods = { "POST", "PUT", "DELETE", "PATCH" };
+
+        for (String method : methods) {
+            given()
+                    .when()
+                    .request(method, "/healthz") // Using dynamic method (POST, PUT, DELETE, PATCH, HEAD)
+                    .then()
+                    .statusCode(405); // Should return 405 Method Not Allowed
+        }
+
     }
 
     @Test
     void testGetWithPayloadReturns400() {
         given()
                 .contentType(ContentType.JSON)
-                .body("{\"key\":\"value\"}")  // Sending a payload
+                .body("{\"key\":\"value\"}") // Sending a payload
                 .when()
                 .get("/healthz")
                 .then()
                 .statusCode(400);
     }
 }
-

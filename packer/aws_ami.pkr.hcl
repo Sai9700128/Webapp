@@ -9,25 +9,25 @@ packer {
 
 # # DB Configuration
 
-variable "DB_URL" {
-  type = string
-}
+# variable "DB_URL" {
+#   type = string
+# }
 
-variable "DB_USERNAME" {
-  type = string
-}
+# variable "DB_USERNAME" {
+#   type = string
+# }
 
-variable "DB_PASSWORD" {
-  type = string
-}
+# variable "DB_PASSWORD" {
+#   type = string
+# }
 
-variable "DB_NAME" {
-  type = string
-}
+# variable "DB_NAME" {
+#   type = string
+# }
 
-variable "PRT_NBR" {
-  type = string
-}
+# variable "PRT_NBR" {
+#   type = string
+# }
 
 variable "SSH_USERNAME" {
   type    = string
@@ -115,13 +115,13 @@ build {
   # Step 2
   # Pre-Setup Script
   provisioner "shell" {
-    environment_vars = [
-      "DB_URL=${var.DB_URL}",
-      "DB_USERNAME=${var.DB_USERNAME}",
-      "DB_PASSWORD=${var.DB_PASSWORD}",
-      "DB_NAME=${var.DB_NAME}",
-      "PRT_NBR=${var.PRT_NBR}"
-    ]
+    # environment_vars = [
+    #   "DB_URL=${var.DB_URL}",
+    #   "DB_USERNAME=${var.DB_USERNAME}",
+    #   "DB_PASSWORD=${var.DB_PASSWORD}",
+    #   "DB_NAME=${var.DB_NAME}",
+    #   "PRT_NBR=${var.PRT_NBR}"
+    # ]
     script = "scripts/pre-setup.sh"
   }
 
