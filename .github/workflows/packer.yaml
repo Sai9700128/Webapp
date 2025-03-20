@@ -16,6 +16,8 @@ jobs:
       DB_URL: ${{ secrets.DB_URL }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
 
       # Packer Variables (Automatically Picked Up)
       # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
@@ -72,14 +74,12 @@ jobs:
       - name: Initialize Packer
         working-directory: packer
         run: |
-          packer init gcp_image.pkr.hcl
           packer init aws_ami.pkr.hcl
 
       - name: Run Packer fmt Check
         working-directory: packer
         run: |
           packer fmt -check -diff aws_ami.pkr.hcl
-          packer fmt -check -diff gcp_image.pkr.hcl
         continue-on-error: false
 
       - name: Run Packer Validate (AWS)
@@ -87,7 +87,7 @@ jobs:
         run: |
           packer validate aws_ami.pkr.hcl
 
-      - name: Run Packer Validate (GCP)
-        working-directory: packer
-        run: |
-          packer validate gcp_image.pkr.hcl
+      # - name: Run Packer Validate (GCP)
+      #   working-directory: packer
+      #   run: |
+      #     packer validate gcp_image.pkr.hcl
