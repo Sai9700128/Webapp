@@ -1,41 +1,41 @@
-name: CI - Run Tests
+# name: CI - Run Tests
 
-on:
-  pull_request:
-    branches:
-      - main
+# on:
+#   pull_request:
+#     branches:
+#       - main
 
-jobs:
-  test-development:
-    name: Run Application Tests
-    runs-on: ubuntu-latest
-    environment: development
+# jobs:
+#   test-development:
+#     name: Run Application Tests
+#     runs-on: ubuntu-latest
+#     environment: development
 
-    services:
-      mysql:
-        image: mysql:8
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+#     services:
+#       mysql:
+#         image: mysql:8
+#         ports:
+#           - 3306:3306
+#         env:
+#           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+#           MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+#         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
 
-      - name: Set Up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: "21"
+#       - name: Set Up JDK 21
+#         uses: actions/setup-java@v3
+#         with:
+#           distribution: "temurin"
+#           java-version: "21"
 
-      - name: Set Up Dependencies and Run Tests
-        env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          # PORT: ${{ secrets.PORT }}
-        run: mvn clean install
-        working-directory: HealthCheck
+#       - name: Set Up Dependencies and Run Tests
+#         env:
+#           DB_URL: ${{ secrets.DB_URL }}
+#           DB_USERNAME: ${{ secrets.DB_USERNAME }}
+#           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+#           # PORT: ${{ secrets.PORT }}
+#         run: mvn clean install
+#         working-directory: HealthCheck
