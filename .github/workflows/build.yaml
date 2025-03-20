@@ -16,10 +16,10 @@ jobs:
         image: mysql:8
         ports:
           - 3306:3306
-        # env:
-        #   MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        #   MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-        # options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout Repository
@@ -31,18 +31,11 @@ jobs:
           distribution: "temurin"
           java-version: "21"
 
-      - name: Set up AWS CLI
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
       - name: Set Up Dependencies and Run Tests
-        # env:
-        #   DB_URL: ${{ secrets.DB_URL }}
-        #   DB_USERNAME: ${{ secrets.DB_USERNAME }}
-        #   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        # PORT: ${{ secrets.PORT }}
-        run: mvn clean -B package
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          # PORT: ${{ secrets.PORT }}
+        run: mvn clean install
         working-directory: HealthCheck

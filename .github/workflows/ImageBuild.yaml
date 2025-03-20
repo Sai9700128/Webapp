@@ -19,11 +19,11 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_DEV_IAM_SECRET_KEY }}
       GCP_ACCESS_KEY: ${{ secrets.GCP_ACCESS_KEY }}
 
-      # # Application Variables
-      # DB_URL: ${{ secrets.DB_URL }}
-      # DB_USERNAME: ${{ secrets.DB_USERNAME }}
-      # DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      # PORT: ${{ secrets.PORT }}
+      # Application Variables
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      PORT: ${{ secrets.PORT }}
 
       # Packer Variables
       # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}

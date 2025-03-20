@@ -13,9 +13,9 @@ jobs:
 
     env:
       # Application Variables
-      # DB_URL: ${{ secrets.DB_URL }}
-      # DB_USERNAME: ${{ secrets.DB_USERNAME }}
-      # DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
       # Packer Variables (Automatically Picked Up)
       # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
@@ -33,15 +33,15 @@ jobs:
       PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
       PKR_VAR_GCP_ZONE: ${{ secrets.GCP_ZONE }}
 
-    # services:
-    #   mysql:
-    #     image: mysql:8
-    #     ports:
-    #       - 3306:3306
-    #     env:
-    #       MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-    #       MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-    #     options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout Repository
@@ -54,11 +54,11 @@ jobs:
           java-version: "21"
 
       - name: Build the HealthCheck JAR file and Set Up Dependencies and Run Tests
-        # env:
-        # DB_URL: ${{ secrets.DB_URL}}
-        # DB_USERNAME: ${{ secrets.DB_USERNAME }}
-        # DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        # PORT: ${{ secrets.PORT }}
+        env:
+          DB_URL: ${{ secrets.DB_URL}}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          # PORT: ${{ secrets.PORT }}
         run: |
           cd HealthCheck  # Navigate to the directory containing your Spring Boot application
           mvn clean -B package  # Build the JAR file (ensure your pom.xml is correctly configured)
@@ -79,6 +79,7 @@ jobs:
         working-directory: packer
         run: |
           packer fmt -check -diff aws_ami.pkr.hcl
+          packer fmt -check -diff gcp_image.pkr.hcl
         continue-on-error: false
 
       - name: Run Packer Validate (AWS)
@@ -86,7 +87,7 @@ jobs:
         run: |
           packer validate aws_ami.pkr.hcl
 
-      # - name: Run Packer Validate (GCP)
-      #   working-directory: packer
-      #   run: |
-      #     packer validate gcp_image.pkr.hcl
+      - name: Run Packer Validate (GCP)
+        working-directory: packer
+        run: |
+          packer validate gcp_image.pkr.hcl
