@@ -23,7 +23,8 @@ jobs:
       DB_URL: ${{ secrets.DB_URL }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      PORT: ${{ secrets.PORT }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
 
       # Packer Variables
       # PKR_VAR_DB_URL: ${{ secrets.DB_URL }}
@@ -41,17 +42,17 @@ jobs:
       # PKR_VAR_GCP_DEMO_PROJECT_ID: ${{ secrets.GCP_DEMO_PROJECT_ID }}
       # PKR_VAR_GCP_ZONE: ${{ secrets.GCP_ZONE }}
 
-    # services:
-    # mysql:
-    #   image: mysql:8
-    #   ports:
-    #     - 3306:3306
-    #   env:
-    #     MYSQL_ROOT_URL: ${{ secrets.DB_URL }}
-    #     MYSQL_ROOT_USERNAME: ${{ secrets.DB_USERNAME }}
-    #     MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-    #     MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-    #   options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_URL: ${{ secrets.DB_URL }}
+          MYSQL_ROOT_USERNAME: ${{ secrets.DB_USERNAME }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout Repository
