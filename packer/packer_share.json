@@ -1,0 +1,24 @@
+{
+  "builders": [
+    {
+      "type": "googlecompute",
+      "project_id": "dev-452121",
+      "source_image_family": "ubuntu-2204-lts",
+      "zone": "us-central1-a",
+      "image_name": "csye6225-health-checker-gcp-2025-03-20-02-36-13",
+      "image_family": "csye6225-health-checker-family",
+      "ssh_username": "ubuntu",
+      "skip_deprecated_licenses": true,
+      "shared_with": [
+        "pioneering-tome-453017-h5"
+      ]
+    }
+  ],
+
+  "post-processors": [
+    {
+      "type": "manifest",
+      "output": "manifest.json"
+    }
+  ]
+}

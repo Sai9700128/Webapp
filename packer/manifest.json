@@ -1,0 +1,68 @@
+{
+  "builds": [
+    {
+      "name": "AWS_AMI",
+      "builder_type": "amazon-ebs",
+      "build_time": 1742345667,
+      "files": null,
+      "artifact_id": "us-east-1:ami-04b147a3051559802",
+      "packer_run_uuid": "7266b7b5-9dc2-626c-9722-bbd1086f7cc0",
+      "custom_data": null
+    },
+    {
+      "name": "AWS_AMI",
+      "builder_type": "amazon-ebs",
+      "build_time": 1742352871,
+      "files": null,
+      "artifact_id": "us-east-1:ami-03d606fd6b45b0c49",
+      "packer_run_uuid": "d0a400f3-eb5f-b981-a6e0-cfad582f7c4f",
+      "custom_data": null
+    },
+    {
+      "name": "AWS_AMI",
+      "builder_type": "amazon-ebs",
+      "build_time": 1742425105,
+      "files": null,
+      "artifact_id": "us-east-1:ami-023570b1dfa2693c9",
+      "packer_run_uuid": "50072676-68c7-c90b-6c1f-d39ea1099cf1",
+      "custom_data": null
+    },
+    {
+      "name": "AWS_AMI",
+      "builder_type": "amazon-ebs",
+      "build_time": 1742427575,
+      "files": null,
+      "artifact_id": "us-east-1:ami-0c97d800447e8c937",
+      "packer_run_uuid": "bd0740ce-1bef-db10-e59a-40d68b1838f8",
+      "custom_data": null
+    },
+    {
+      "name": "AWS_AMI",
+      "builder_type": "amazon-ebs",
+      "build_time": 1742429469,
+      "files": null,
+      "artifact_id": "us-east-1:ami-070c38c26fa4c0dcf",
+      "packer_run_uuid": "9b39763b-b10b-1b7d-b91d-307eae82d24c",
+      "custom_data": null
+    },
+    {
+      "name": "gcp_custom_ubuntu",
+      "builder_type": "googlecompute",
+      "build_time": 1742438847,
+      "files": null,
+      "artifact_id": "csye6225-health-checker-gcp-2025-03-20-02-36-13",
+      "packer_run_uuid": "8dcb4750-9856-a145-c504-5c4e4c4fcdbb",
+      "custom_data": null
+    },
+    {
+      "name": "AWS_AMI",
+      "builder_type": "amazon-ebs",
+      "build_time": 1742444630,
+      "files": null,
+      "artifact_id": "us-east-1:ami-05d198cb51cb033ef",
+      "packer_run_uuid": "3f2bdee1-7bd6-fdfd-cb2e-8c5a20b76276",
+      "custom_data": null
+    }
+  ],
+  "last_run_uuid": "3f2bdee1-7bd6-fdfd-cb2e-8c5a20b76276"
+}
