@@ -23,6 +23,13 @@ sudo groupadd -f csye6225
 # Create the user csye6225 with the primary group csye6225 and no login shell
 sudo useradd -m -g csye6225 -s /usr/sbin/nologin csye6225
 
-
-
 echo "JDK setup done"
+
+
+echo "Installing Amazon-ClouWatch-Agent,,,...."
+
+wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+
+sudo dpkg -i amazon-cloudwatch-agent.deb
+
+rm amazon-cloudwatch-agent.deb

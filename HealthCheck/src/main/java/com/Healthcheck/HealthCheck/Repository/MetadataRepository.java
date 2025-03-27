@@ -9,8 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface MetadataRepository extends JpaRepository<FileMetaData, Long> {
-    static Optional<FileMetaData> findByFileKey(String fileKey) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByFileKey'");
-    }
+    Optional<FileMetaData> findByFileKey(String fileKey); // Correct JPA method
 }
