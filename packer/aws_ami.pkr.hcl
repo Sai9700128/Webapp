@@ -135,6 +135,11 @@ build {
     destination = "/tmp/"
   }
 
+  provisioner "file" {
+    source      = "cloudWatch_agent.json"
+    destination = "/tmp/"
+  }
+
   provisioner "shell" {
     script = "scripts/systemd-setup.sh"
   }

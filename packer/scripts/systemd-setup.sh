@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# Exit on any error
+set -e
+
 # Create directory for the application if it doesn't already exist
 sudo mkdir -p /opt/csye6225
 
@@ -17,3 +22,25 @@ sudo systemctl daemon-reload
 
 # Enable the service to start on boot
 sudo systemctl enable csye6225.service
+
+
+# Create log directory
+sudo mkdir -p /var/log/csye6225
+sudo chown -R csye6225:csye6225 /var/log/csye6225
+
+
+echo "Checking if cloudWatch_agent.json exists at /tmp"
+ls -l /tmp/cloudWatch_agent.json || echo "File NOT found"
+
+# Move CloudWatch config
+sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc/
+sudo mv /tmp/cloudWatch_agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+
+echo "Verifying it was moved to /opt/aws/amazon-cloudwatch-agent/etc/"
+ls -l /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json || echo "Move failed"
+
+# Start and enable the agent
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+
+sudo systemctl enable amazon-cloudwatch-agent
