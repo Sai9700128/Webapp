@@ -162,79 +162,166 @@ jobs:
           done
           echo "AMI is now available in Demo account!"
 
-      # This finds the launch template by tag name, then creates a new version with the updated AMI ID. The IDs are stored as environment variables.
-      - name: Update Launch Template with new AMI
+      # Create new Launch Template version
+      - name: Create new Launch Template version
         id: update-launch-template
         run: |
-          # Get current Launch Template ID using tag
+          # List all launch templates and debug output
+          echo "Listing all available launch templates:"
+          aws ec2 describe-launch-templates --output json
+
+          # Use the Launch Template name directly instead of filtering by tags
+          # Replace 'your-launch-template-name' with your actual launch template name
+          LAUNCH_TEMPLATE_NAME="your-launch-template-name"
+          echo "Looking for launch template with name: $LAUNCH_TEMPLATE_NAME"
+
           LAUNCH_TEMPLATE_ID=$(aws ec2 describe-launch-templates \
-            --filters "Name=tag:Name,Values=health-checker-lt" \
+            --filters "Name=launch-template-name,Values=$LAUNCH_TEMPLATE_NAME" \
             --query "LaunchTemplates[0].LaunchTemplateId" \
             --output text)
 
-          echo "Found Launch Template ID: ${LAUNCH_TEMPLATE_ID}"
-            
-          # Create new version with the latest AMI ID
+          # Check if Launch Template ID was found
+          if [ "$LAUNCH_TEMPLATE_ID" == "None" ] || [ -z "$LAUNCH_TEMPLATE_ID" ]; then
+            echo "ERROR: Could not find Launch Template with name: $LAUNCH_TEMPLATE_NAME"
+            echo "Available Launch Templates:"
+            aws ec2 describe-launch-templates --query "LaunchTemplates[].LaunchTemplateName" --output text
+            exit 1
+          fi
+
+          echo "Found Launch Template ID: $LAUNCH_TEMPLATE_ID"
+
+          # Get the latest version number
+          LATEST_VERSION=$(aws ec2 describe-launch-template-versions \
+            --launch-template-id $LAUNCH_TEMPLATE_ID \
+            --versions '$Latest' \
+            --query "LaunchTemplateVersions[0].VersionNumber" \
+            --output text)
+
+          echo "Latest Version: $LATEST_VERSION"
+
+          # Get the current template data
+          TEMPLATE_DATA=$(aws ec2 describe-launch-template-versions \
+            --launch-template-id $LAUNCH_TEMPLATE_ID \
+            --versions $LATEST_VERSION \
+            --query "LaunchTemplateVersions[0].LaunchTemplateData" \
+            --output json)
+
+          echo "Current Template Data: $TEMPLATE_DATA"
+
+          # Update the template data with the new AMI ID
+          # This preserves all other settings
+          UPDATED_TEMPLATE_DATA=$(echo $TEMPLATE_DATA | jq --arg ami "${{ steps.build-ami.outputs.ami_id }}" '.ImageId = $ami')
+
+          echo "Updated Template Data: $UPDATED_TEMPLATE_DATA"
+
+          # Create a new version of the Launch Template
           NEW_VERSION=$(aws ec2 create-launch-template-version \
-            --launch-template-id ${LAUNCH_TEMPLATE_ID} \
-            --version-description "AMI update to ${AMI_ID}" \
-            --source-version '$Latest' \
-            --launch-template-data "{\"ImageId\":\"${AMI_ID}\"}" \
+            --launch-template-id $LAUNCH_TEMPLATE_ID \
+            --version-description "Automated update by GitHub Actions - ${GITHUB_SHA::8}" \
+            --launch-template-data "$UPDATED_TEMPLATE_DATA" \
             --query "LaunchTemplateVersion.VersionNumber" \
             --output text)
-            
-          echo "LAUNCH_TEMPLATE_ID=${LAUNCH_TEMPLATE_ID}" >> $GITHUB_ENV
-          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+
+          echo "Created new version: $NEW_VERSION"
+
+          echo "launch_template_id=$LAUNCH_TEMPLATE_ID" >> $GITHUB_OUTPUT
+          echo "launch_template_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       # This finds the Auto Scaling Group by tag, updates it to use the new launch template version, and starts an instance refresh process.
       # Mention Tagname.......
-      - name: Start instance refresh for ASG
-        id: start-instance-refresh
+      # Update auto-scaling group to use the latest launch template version
+      - name: Update Auto-Scaling Group
+        id: update-asg
         run: |
-          # Find ASG using tag
-          ASG_NAME=$(aws autoscaling describe-auto-scaling-groups \
-            --filters "Name=tag-key,Values=Name" "Name=tag-value,Values=health-checker-asg" \
+          # List all auto-scaling groups and debug output
+          echo "Listing all available auto-scaling groups:"
+          aws autoscaling describe-auto-scaling-groups --output json
+
+          # Use the ASG name directly instead of filtering by tags
+          # Replace 'your-asg-name' with your actual ASG name
+          ASG_NAME="csye6225-asg"
+          echo "Looking for auto-scaling group with name: $ASG_NAME"
+
+          # Verify ASG exists
+          ASG_CHECK=$(aws autoscaling describe-auto-scaling-groups \
+            --auto-scaling-group-names $ASG_NAME \
             --query "AutoScalingGroups[0].AutoScalingGroupName" \
             --output text)
             
-          echo "Found Auto Scaling Group: ${ASG_NAME}"
-            
-          # Update ASG to use latest launch template version
+          if [ "$ASG_CHECK" == "None" ] || [ -z "$ASG_CHECK" ]; then
+            echo "ERROR: Could not find Auto-Scaling Group with name: $ASG_NAME"
+            echo "Available Auto-Scaling Groups:"
+            aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[].AutoScalingGroupName" --output text
+            exit 1
+          fi
+
+          echo "Found Auto-Scaling Group: $ASG_NAME"
+
+          # Update the ASG to use the latest Launch Template version
+          echo "Updating ASG to use Launch Template ID: ${{ steps.update-launch-template.outputs.launch_template_id }} with latest version"
           aws autoscaling update-auto-scaling-group \
-            --auto-scaling-group-name ${ASG_NAME} \
-            --launch-template LaunchTemplateId=${LAUNCH_TEMPLATE_ID},Version=${NEW_VERSION}
-            
-          # Start instance refresh
+            --auto-scaling-group-name $ASG_NAME \
+            --launch-template LaunchTemplateId=${{ steps.update-launch-template.outputs.launch_template_id }},Version=\$Latest
+
+          echo "asg_name=$ASG_NAME" >> $GITHUB_OUTPUT
+
+      # Start instance refresh
+      - name: Start Instance Refresh
+        id: start-refresh
+        run: |
+          # Use the ASG name from the previous step
+          ASG_NAME="${{ steps.update-asg.outputs.asg_name }}"
+          echo "Starting instance refresh for ASG: $ASG_NAME"
+
+          # Start the instance refresh
           REFRESH_ID=$(aws autoscaling start-instance-refresh \
-            --auto-scaling-group-name ${ASG_NAME} \
+            --auto-scaling-group-name $ASG_NAME \
             --preferences '{"MinHealthyPercentage": 90, "InstanceWarmup": 300}' \
             --query "InstanceRefreshId" \
             --output text)
-            
-          echo "ASG_NAME=${ASG_NAME}" >> $GITHUB_ENV
-          echo "REFRESH_ID=${REFRESH_ID}" >> $GITHUB_ENV
 
+          if [ -z "$REFRESH_ID" ]; then
+            echo "ERROR: Failed to start instance refresh"
+            exit 1
+          fi
+
+          echo "Started instance refresh with ID: $REFRESH_ID"
+          echo "refresh_id=$REFRESH_ID" >> $GITHUB_OUTPUT
+          echo "asg_name=$ASG_NAME" >> $GITHUB_OUTPUT
+
+      # Wait for instance refresh to complete
       - name: Wait for instance refresh to complete
         run: |
-          echo "Waiting for instance refresh ${REFRESH_ID} to complete..."
+          REFRESH_ID="${{ steps.start-refresh.outputs.refresh_id }}"
+          ASG_NAME="${{ steps.start-refresh.outputs.asg_name }}"
+
+          echo "Waiting for instance refresh $REFRESH_ID to complete..."
 
           while true; do
-            REFRESH_STATUS=$(aws autoscaling describe-instance-refreshes \
-              --auto-scaling-group-name ${ASG_NAME} \
-              --instance-refresh-ids ${REFRESH_ID} \
+            STATUS=$(aws autoscaling describe-instance-refreshes \
+              --auto-scaling-group-name $ASG_NAME \
+              --instance-refresh-ids $REFRESH_ID \
               --query "InstanceRefreshes[0].Status" \
               --output text)
-              
-            echo "Current status: ${REFRESH_STATUS}"
             
-            if [ "${REFRESH_STATUS}" == "Successful" ]; then
+            echo "Current status: $STATUS"
+            
+            if [ "$STATUS" == "Successful" ]; then
               echo "Instance refresh completed successfully!"
-              exit 0
-            elif [ "${REFRESH_STATUS}" == "Failed" ] || [ "${REFRESH_STATUS}" == "Cancelled" ]; then
-              echo "Instance refresh failed or was cancelled!"
+              break
+            elif [ "$STATUS" == "Failed" ] || [ "$STATUS" == "Cancelled" ]; then
+              echo "Instance refresh failed or was cancelled."
+              aws autoscaling describe-instance-refreshes \
+                --auto-scaling-group-name $ASG_NAME \
+                --instance-refresh-ids $REFRESH_ID
               exit 1
-            else
-              echo "Instance refresh still in progress. Waiting 30 seconds..."
+            elif [ "$STATUS" == "Pending" ] || [ "$STATUS" == "InProgress" ]; then
+              echo "Instance refresh is still in progress. Waiting 30 seconds..."
               sleep 30
+            else
+              echo "Unknown status: $STATUS. Exiting."
+              exit 1
             fi
           done
+
+          echo "Deployment to DEMO environment completed successfully!"
