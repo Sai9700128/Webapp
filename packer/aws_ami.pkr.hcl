@@ -70,15 +70,30 @@ variable "AMI_USER" {
   type = string
 }
 
+# variable "KMS_KEY_ID" {
+#   type    = String
+# }
+
+variable "APP_VERSION" {
+  type    = string
+  default = "v1.0"
+}
+
 
 # Amazon AMI Source Configuration
 source "amazon-ebs" "AWS_AMI" {
   profile         = "dev"
-  ami_name        = "${var.AMI_NAME}_${formatdate("YYYY_MM_DD_HH_MM_ss", timestamp())}"
+  ami_name        = "${var.AMI_NAME}_${var.APP_VERSION}_${formatdate("YYYY_MM_DD_HH_MM_ss", timestamp())}"
   ami_description = var.AMI_DESCRIPTION
   instance_type   = var.INSTANCE_TYPE
   region          = var.REGION
   subnet_id       = var.SUBNET_ID
+
+
+
+  # Enable encryption with KMS
+  # encrypt_boot    = true
+  # kms_key_id      = var.KMS_KEY_ID
 
 
   # Base Image Selection
@@ -103,6 +118,11 @@ source "amazon-ebs" "AWS_AMI" {
   }
 
   ami_users = [var.AMI_USER]
+
+  tags = {
+    Name    = "HealthChecker-AMI"
+    Version = var.APP_VERSION
+  }
 }
 
 
@@ -139,6 +159,18 @@ build {
     source      = "cloudWatch_agent.json"
     destination = "/tmp/"
   }
+
+  # Add new file for DB credentials retrieval
+  # provisioner "file" {
+  #   source      = "get-secrets.sh"
+  #   destination = "/tmp/"
+  # }
+
+  # Add new systemd service for secrets retrieval
+  # provisioner "file" {
+  #   source      = "get-secrets.service"
+  #   destination = "/tmp/"
+  # }
 
   provisioner "shell" {
     script = "scripts/systemd-setup.sh"

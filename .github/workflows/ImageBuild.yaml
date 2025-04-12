@@ -114,11 +114,16 @@ jobs:
       #   run: |
       #     packer validate gcp_image.pkr.hcl
 
-      - name: Build AWS AMI with Packer
+      # The AMI ID is stored as both an environment variable and a step output.
+      - name: Build AWS AMI with Packer & Capture AMI ID INTO ENVIRONMENT
         id: packer_aws # Unique ID for AWS build step
         run: |
           cd packer
           packer build aws_ami.pkr.hcl
+
+          AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
+          echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
+          echo "ami_id=${AMI_ID}" >> $GITHUB_OUTPUT
 
       # - name: Build GCP IMAGE with Packer
       #   id: packer_gcp  # Unique ID for GCP build step
@@ -137,3 +142,99 @@ jobs:
       #       --source-image-project="$GCP_PROJECT_ID" \
       #       --project="$GCP_DEMO_PROJECT_ID" \
       #       --description="Image for CSYE6225 Health Checker shared from Dev Project"
+
+      # DEMO ACCOUNT CONFIGURATION
+
+      # This switches AWS credentials to the DEMO account for the remaining steps.
+      - name: Configure AWS credentials for DEMO account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEMO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Wait for AMI to be available in Demo account
+        run: |
+          echo "Waiting for AMI to be available in Demo account..."
+          while ! aws ec2 describe-images --image-ids ${{ env.AMI_ID }} > /dev/null 2>&1; do
+            echo "AMI not yet available, waiting..."
+            sleep 30
+          done
+          echo "AMI is now available in Demo account!"
+
+      # This finds the launch template by tag name, then creates a new version with the updated AMI ID. The IDs are stored as environment variables.
+      - name: Update Launch Template with new AMI
+        id: update-launch-template
+        run: |
+          # Get current Launch Template ID using tag
+          LAUNCH_TEMPLATE_ID=$(aws ec2 describe-launch-templates \
+            --filters "Name=tag:Name,Values=health-checker-lt" \
+            --query "LaunchTemplates[0].LaunchTemplateId" \
+            --output text)
+
+          echo "Found Launch Template ID: ${LAUNCH_TEMPLATE_ID}"
+            
+          # Create new version with the latest AMI ID
+          NEW_VERSION=$(aws ec2 create-launch-template-version \
+            --launch-template-id ${LAUNCH_TEMPLATE_ID} \
+            --version-description "AMI update to ${AMI_ID}" \
+            --source-version '$Latest' \
+            --launch-template-data "{\"ImageId\":\"${AMI_ID}\"}" \
+            --query "LaunchTemplateVersion.VersionNumber" \
+            --output text)
+            
+          echo "LAUNCH_TEMPLATE_ID=${LAUNCH_TEMPLATE_ID}" >> $GITHUB_ENV
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+
+      # This finds the Auto Scaling Group by tag, updates it to use the new launch template version, and starts an instance refresh process.
+      # Mention Tagname.......
+      - name: Start instance refresh for ASG
+        id: start-instance-refresh
+        run: |
+          # Find ASG using tag
+          ASG_NAME=$(aws autoscaling describe-auto-scaling-groups \
+            --filters "Name=tag-key,Values=Name" "Name=tag-value,Values=health-checker-asg" \
+            --query "AutoScalingGroups[0].AutoScalingGroupName" \
+            --output text)
+            
+          echo "Found Auto Scaling Group: ${ASG_NAME}"
+            
+          # Update ASG to use latest launch template version
+          aws autoscaling update-auto-scaling-group \
+            --auto-scaling-group-name ${ASG_NAME} \
+            --launch-template LaunchTemplateId=${LAUNCH_TEMPLATE_ID},Version=${NEW_VERSION}
+            
+          # Start instance refresh
+          REFRESH_ID=$(aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name ${ASG_NAME} \
+            --preferences '{"MinHealthyPercentage": 90, "InstanceWarmup": 300}' \
+            --query "InstanceRefreshId" \
+            --output text)
+            
+          echo "ASG_NAME=${ASG_NAME}" >> $GITHUB_ENV
+          echo "REFRESH_ID=${REFRESH_ID}" >> $GITHUB_ENV
+
+      - name: Wait for instance refresh to complete
+        run: |
+          echo "Waiting for instance refresh ${REFRESH_ID} to complete..."
+
+          while true; do
+            REFRESH_STATUS=$(aws autoscaling describe-instance-refreshes \
+              --auto-scaling-group-name ${ASG_NAME} \
+              --instance-refresh-ids ${REFRESH_ID} \
+              --query "InstanceRefreshes[0].Status" \
+              --output text)
+              
+            echo "Current status: ${REFRESH_STATUS}"
+            
+            if [ "${REFRESH_STATUS}" == "Successful" ]; then
+              echo "Instance refresh completed successfully!"
+              exit 0
+            elif [ "${REFRESH_STATUS}" == "Failed" ] || [ "${REFRESH_STATUS}" == "Cancelled" ]; then
+              echo "Instance refresh failed or was cancelled!"
+              exit 1
+            else
+              echo "Instance refresh still in progress. Waiting 30 seconds..."
+              sleep 30
+            fi
+          done
