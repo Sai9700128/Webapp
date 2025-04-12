@@ -91,7 +91,7 @@ source "amazon-ebs" "AWS_AMI" {
 
 
 
-    # Enable encryption with KMS
+  # Enable encryption with KMS
   # encrypt_boot    = true
   # kms_key_id      = var.KMS_KEY_ID
 
@@ -118,8 +118,8 @@ source "amazon-ebs" "AWS_AMI" {
   }
 
   ami_users = [var.AMI_USER]
-    
-    tags = {
+
+  tags = {
     Name    = "HealthChecker-AMI"
     Version = var.APP_VERSION
   }
@@ -165,7 +165,7 @@ build {
   #   source      = "get-secrets.sh"
   #   destination = "/tmp/"
   # }
-  
+
   # Add new systemd service for secrets retrieval
   # provisioner "file" {
   #   source      = "get-secrets.service"
