@@ -121,9 +121,26 @@ jobs:
           cd packer
           packer build aws_ami.pkr.hcl
 
-          AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
-          echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
-          echo "ami_id=${AMI_ID}" >> $GITHUB_OUTPUT
+          # Extract the AMI ID from Packer output and set as output
+          if [ -f "manifest.json" ]; then
+            AMI_ID=$(jq -r '.builds[-1].artifact_id' packer-manifest.json | cut -d ":" -f2)
+            
+            # Verify AMI ID format
+            if [[ ! $AMI_ID =~ ^ami-[a-f0-9]+$ ]]; then
+              echo "Error: Invalid AMI ID format: '$AMI_ID'"
+              echo "Checking raw packer-manifest.json content:"
+              cat packer-manifest.json
+              exit 1
+            fi
+            
+            # Set output and create a file for additional verification
+            echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
+            echo "AMI_ID=$AMI_ID" > ami_id.txt
+            echo "Successfully built AMI: $AMI_ID"
+          else
+            echo "Error: packer-manifest.json not found"
+            exit 1
+          fi
 
       # - name: Build GCP IMAGE with Packer
       #   id: packer_gcp  # Unique ID for GCP build step
@@ -166,6 +183,31 @@ jobs:
       - name: Create new Launch Template version
         id: update-launch-template
         run: |
+          # Verify AMI ID is available
+          if [ ! -f "ami_id.txt" ]; then
+            echo "ERROR: ami_id.txt file not found"
+            exit 1
+          fi
+
+          # Read AMI ID from file as backup method
+          AMI_ID_FROM_FILE=$(cat ami_id.txt | grep -o 'AMI_ID=ami-[a-f0-9]*' | cut -d= -f2)
+          AMI_ID="${{ steps.build-ami.outputs.ami_id }}"
+
+          # Use file-based AMI ID if output variable is empty
+          if [ -z "$AMI_ID" ] || [[ ! $AMI_ID =~ ^ami-[a-f0-9]+$ ]]; then
+            echo "WARNING: AMI ID from GitHub output is empty or invalid: '$AMI_ID'"
+            if [[ $AMI_ID_FROM_FILE =~ ^ami-[a-f0-9]+$ ]]; then
+              echo "Using AMI ID from file instead: $AMI_ID_FROM_FILE"
+              AMI_ID="$AMI_ID_FROM_FILE"
+            else
+              echo "ERROR: Cannot find valid AMI ID from any source"
+              exit 1
+            fi
+          fi
+
+          echo "Using AMI ID: $AMI_ID"
+
+
           # List all launch templates and debug output
           echo "Listing all available launch templates:"
           aws ec2 describe-launch-templates --output json
