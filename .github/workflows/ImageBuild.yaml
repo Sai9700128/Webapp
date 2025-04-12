@@ -121,25 +121,61 @@ jobs:
           cd packer
           packer build aws_ami.pkr.hcl
 
-          # Extract the AMI ID from Packer output and set as output
+          # Wait a moment for manifest file to be created
+          sleep 5
+
+          # Check if the manifest file exists and display its contents
           if [ -f "manifest.json" ]; then
-            AMI_ID=$(jq -r '.builds[-1].artifact_id' packer-manifest.json | cut -d ":" -f2)
+            echo "Found manifest.json file. Contents:"
+            cat manifest.json
+            
+            # Extract AMI ID from manifest.json
+            FULL_ARTIFACT_ID=$(jq -r '.builds[-1].artifact_id' manifest.json)
+            echo "Full artifact ID: $FULL_ARTIFACT_ID"
+            
+            # Extract just the AMI ID part (after the colon)
+            AMI_ID=$(echo $FULL_ARTIFACT_ID | grep -o 'ami-[a-z0-9]*')
+            echo "Extracted AMI ID: $AMI_ID"
             
             # Verify AMI ID format
-            if [[ ! $AMI_ID =~ ^ami-[a-f0-9]+$ ]]; then
+            if [[ ! $AMI_ID =~ ^ami-[a-z0-9]+$ ]]; then
               echo "Error: Invalid AMI ID format: '$AMI_ID'"
-              echo "Checking raw packer-manifest.json content:"
-              cat packer-manifest.json
               exit 1
             fi
             
-            # Set output and create a file for additional verification
+            # Export AMI ID for later steps
             echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
-            echo "AMI_ID=$AMI_ID" > ami_id.txt
+            echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
             echo "Successfully built AMI: $AMI_ID"
           else
-            echo "Error: packer-manifest.json not found"
-            exit 1
+            # Check for packer-manifest.json as an alternative
+            if [ -f "packer-manifest.json" ]; then
+              echo "Found packer-manifest.json file. Contents:"
+              cat packer-manifest.json
+              
+              # Extract AMI ID from packer-manifest.json
+              FULL_ARTIFACT_ID=$(jq -r '.builds[-1].artifact_id' packer-manifest.json)
+              echo "Full artifact ID: $FULL_ARTIFACT_ID"
+              
+              # Extract just the AMI ID part (after the colon)
+              AMI_ID=$(echo $FULL_ARTIFACT_ID | grep -o 'ami-[a-z0-9]*')
+              echo "Extracted AMI ID: $AMI_ID"
+              
+              # Verify AMI ID format
+              if [[ ! $AMI_ID =~ ^ami-[a-z0-9]+$ ]]; then
+                echo "Error: Invalid AMI ID format: '$AMI_ID'"
+                exit 1
+              fi
+              
+              # Export AMI ID for later steps
+              echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
+              echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+              echo "Successfully built AMI: $AMI_ID"
+            else
+              echo "Error: Neither manifest.json nor packer-manifest.json found"
+              ls -la
+              exit 1
+            fi
           fi
 
       # - name: Build GCP IMAGE with Packer
@@ -172,48 +208,41 @@ jobs:
 
       - name: Wait for AMI to be available in Demo account
         run: |
-          echo "Waiting for AMI to be available in Demo account..."
-          while ! aws ec2 describe-images --image-ids ${{ env.AMI_ID }} > /dev/null 2>&1; do
-            echo "AMI not yet available, waiting..."
-            sleep 30
+          echo "Waiting for AMI to be available in Demo account... AMI ID: ${{ env.AMI_ID }}"
+
+          # Retry logic with timeout
+          timeout=600  # 10 minutes timeout
+          start_time=$(date +%s)
+
+          while true; do
+            current_time=$(date +%s)
+            elapsed=$((current_time - start_time))
+            
+            if [ $elapsed -gt $timeout ]; then
+              echo "Timeout waiting for AMI to be available."
+              exit 1
+            fi
+            
+            if aws ec2 describe-images --image-ids ${{ env.AMI_ID }} &>/dev/null; then
+              echo "AMI is now available in Demo account!"
+              break
+            else
+              echo "AMI not yet available, waiting... (elapsed: ${elapsed}s)"
+              sleep 30
+            fi
           done
-          echo "AMI is now available in Demo account!"
 
       # Create new Launch Template version
       - name: Create new Launch Template version
         id: update-launch-template
         run: |
-          # Verify AMI ID is available
-          if [ ! -f "ami_id.txt" ]; then
-            echo "ERROR: ami_id.txt file not found"
-            exit 1
-          fi
+          echo "Using AMI ID: ${{ env.AMI_ID }}"
 
-          # Read AMI ID from file as backup method
-          AMI_ID_FROM_FILE=$(cat ami_id.txt | grep -o 'AMI_ID=ami-[a-f0-9]*' | cut -d= -f2)
-          AMI_ID="${{ steps.build-ami.outputs.ami_id }}"
-
-          # Use file-based AMI ID if output variable is empty
-          if [ -z "$AMI_ID" ] || [[ ! $AMI_ID =~ ^ami-[a-f0-9]+$ ]]; then
-            echo "WARNING: AMI ID from GitHub output is empty or invalid: '$AMI_ID'"
-            if [[ $AMI_ID_FROM_FILE =~ ^ami-[a-f0-9]+$ ]]; then
-              echo "Using AMI ID from file instead: $AMI_ID_FROM_FILE"
-              AMI_ID="$AMI_ID_FROM_FILE"
-            else
-              echo "ERROR: Cannot find valid AMI ID from any source"
-              exit 1
-            fi
-          fi
-
-          echo "Using AMI ID: $AMI_ID"
-
-
-          # List all launch templates and debug output
+          # List all launch templates
           echo "Listing all available launch templates:"
-          aws ec2 describe-launch-templates --output json
+          aws ec2 describe-launch-templates --query "LaunchTemplates[].LaunchTemplateName" --output text
 
-          # Use the Launch Template name directly instead of filtering by tags
-          # Replace 'your-launch-template-name' with your actual launch template name
+          # Use the Launch Template name directly
           LAUNCH_TEMPLATE_NAME="csye6225-server"
           echo "Looking for launch template with name: $LAUNCH_TEMPLATE_NAME"
 
@@ -225,8 +254,6 @@ jobs:
           # Check if Launch Template ID was found
           if [ "$LAUNCH_TEMPLATE_ID" == "None" ] || [ -z "$LAUNCH_TEMPLATE_ID" ]; then
             echo "ERROR: Could not find Launch Template with name: $LAUNCH_TEMPLATE_NAME"
-            echo "Available Launch Templates:"
-            aws ec2 describe-launch-templates --query "LaunchTemplates[].LaunchTemplateName" --output text
             exit 1
           fi
 
@@ -248,13 +275,8 @@ jobs:
             --query "LaunchTemplateVersions[0].LaunchTemplateData" \
             --output json)
 
-          echo "Current Template Data: $TEMPLATE_DATA"
-
           # Update the template data with the new AMI ID
-          # This preserves all other settings
-          UPDATED_TEMPLATE_DATA=$(echo $TEMPLATE_DATA | jq --arg ami "${{ steps.build-ami.outputs.ami_id }}" '.ImageId = $ami')
-
-          echo "Updated Template Data: $UPDATED_TEMPLATE_DATA"
+          UPDATED_TEMPLATE_DATA=$(echo $TEMPLATE_DATA | jq --arg ami "${{ env.AMI_ID }}" '.ImageId = $ami')
 
           # Create a new version of the Launch Template
           NEW_VERSION=$(aws ec2 create-launch-template-version \
@@ -264,23 +286,16 @@ jobs:
             --query "LaunchTemplateVersion.VersionNumber" \
             --output text)
 
-          echo "Created new version: $NEW_VERSION"
+          echo "Created new Launch Template version: $NEW_VERSION"
 
           echo "launch_template_id=$LAUNCH_TEMPLATE_ID" >> $GITHUB_OUTPUT
           echo "launch_template_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
-      # This finds the Auto Scaling Group by tag, updates it to use the new launch template version, and starts an instance refresh process.
-      # Mention Tagname.......
       # Update auto-scaling group to use the latest launch template version
       - name: Update Auto-Scaling Group
         id: update-asg
         run: |
-          # List all auto-scaling groups and debug output
-          echo "Listing all available auto-scaling groups:"
-          aws autoscaling describe-auto-scaling-groups --output json
-
-          # Use the ASG name directly instead of filtering by tags
-          # Replace 'your-asg-name' with your actual ASG name
+          # Use the ASG name directly
           ASG_NAME="csye6225-asg"
           echo "Looking for auto-scaling group with name: $ASG_NAME"
 
