@@ -239,7 +239,7 @@ jobs:
 
           # Use the ASG name directly instead of filtering by tags
           # Replace 'your-asg-name' with your actual ASG name
-          ASG_NAME="your-asg-name"
+          ASG_NAME="csye6225-asg"
           echo "Looking for auto-scaling group with name: $ASG_NAME"
 
           # Verify ASG exists
