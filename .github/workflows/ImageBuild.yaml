@@ -172,7 +172,7 @@ jobs:
 
           # Use the Launch Template name directly instead of filtering by tags
           # Replace 'your-launch-template-name' with your actual launch template name
-          LAUNCH_TEMPLATE_NAME="your-launch-template-name"
+          LAUNCH_TEMPLATE_NAME="csye6225-asg"
           echo "Looking for launch template with name: $LAUNCH_TEMPLATE_NAME"
 
           LAUNCH_TEMPLATE_ID=$(aws ec2 describe-launch-templates \
