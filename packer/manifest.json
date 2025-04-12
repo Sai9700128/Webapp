@@ -1,0 +1,23 @@
+{
+  "builds": [
+    {
+      "name": "AWS_AMI",
+      "builder_type": "amazon-ebs",
+      "build_time": 1743950962,
+      "files": null,
+      "artifact_id": "us-east-1:ami-08020ac6bc9d59e31",
+      "packer_run_uuid": "dfc91593-e711-98fb-0544-0472243ea462",
+      "custom_data": null
+    },
+    {
+      "name": "AWS_AMI",
+      "builder_type": "amazon-ebs",
+      "build_time": 1744319450,
+      "files": null,
+      "artifact_id": "us-east-1:ami-04db86e1bd65b28eb",
+      "packer_run_uuid": "39232fc6-8dba-4a0e-aefc-12003242e081",
+      "custom_data": null
+    }
+  ],
+  "last_run_uuid": "39232fc6-8dba-4a0e-aefc-12003242e081"
+}
