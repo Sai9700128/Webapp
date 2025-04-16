@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v2")
 public class S3FileController {
 
     private static final Logger logger = LoggerFactory.getLogger(S3FileController.class);
